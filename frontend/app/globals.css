@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* No smooth scrolling for people who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Visible focus for keyboard users (mouse clicks don't show it), in the accent colour.
+   In the base layer so a component's own focus style (e.g. inputs with "outline-none" and a
+   green border) still wins; otherwise every clicked text field got this ring as well. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid #00ff9d;
+    outline-offset: 2px;
+  }
+}
+
+body {
+  background-color: #0a0e14;
+  color: #e8ecf1;
+  font-family: "Inter", sans-serif;
+}
+
+/* Slow drifting aurora blobs used by <AuroraBackground /> */
+@keyframes driftA {
+  0% {
+    transform: translate(-10%, -10%) scale(1);
+  }
+  50% {
+    transform: translate(10%, 5%) scale(1.15);
+  }
+  100% {
+    transform: translate(-10%, -10%) scale(1);
+  }
+}
+@keyframes driftB {
+  0% {
+    transform: translate(10%, 10%) scale(1.1);
+  }
+  50% {
+    transform: translate(-15%, -5%) scale(1);
+  }
+  100% {
+    transform: translate(10%, 10%) scale(1.1);
+  }
+}
+
+.aurora-blob-a {
+  animation: driftA 22s ease-in-out infinite;
+}
+.aurora-blob-b {
+  animation: driftB 26s ease-in-out infinite;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob-a,
+  .aurora-blob-b {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+::selection {
+  background: #00ff9d;
+  color: #0a0e14;
+}

@@ -1,0 +1,54 @@
+// Copyright (c) 2026 Zainab Alawi. All rights reserved.
+
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import Terminal from "@/components/sections/Terminal";
+import { skillsText, whoamiText } from "@/lib/site";
+import type { SiteSettings, SkillCategory } from "@/lib/types";
+
+/**
+ * Home: name and headline centred above the terminal (the original layout), with a gentle
+ * fade-in. Location, availability and the quote live in About.
+ */
+export default function Hero({
+  settings,
+  skillCategories,
+}: {
+  settings: SiteSettings;
+  skillCategories: SkillCategory[];
+}) {
+  const reduceMotion = useReducedMotion();
+  // Always animate to visible: the server renders the starting state, so leaving out
+  // "animate" for reduced motion would keep the text invisible.
+  const rise = (delay: number) => ({
+    initial: reduceMotion ? false : { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: reduceMotion ? { duration: 0 } : { duration: 0.6, delay, ease: "easeOut" as const },
+  });
+
+  return (
+    <section
+      id="home"
+      className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 text-center"
+    >
+      <motion.div {...rise(0)}>
+        <h1 className="font-display text-5xl font-bold tracking-tight md:text-7xl">
+          {settings.fullName}
+        </h1>
+        {settings.headline && (
+          <p className="mt-3 font-mono text-lg text-gray-400">{settings.headline}</p>
+        )}
+      </motion.div>
+      <motion.div {...rise(0.15)} className="flex w-full justify-center">
+        <Terminal
+          cvUrl={settings.cvUrl}
+          githubUrl={settings.githubUrl}
+          whoami={whoamiText(settings)}
+          skills={skillsText(skillCategories)}
+          className="w-full max-w-3xl"
+        />
+      </motion.div>
+    </section>
+  );
+}

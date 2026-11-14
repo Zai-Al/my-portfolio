@@ -1,0 +1,37 @@
+# Copyright (c) 2026 Zainab Alawi. All rights reserved.
+#
+# Weekly dependency update PRs into `development` (never straight to `main`).
+# Minor and patch updates come grouped, one PR per ecosystem. Major upgrades (.NET 10,
+# Next.js 15/16, React 19) are skipped here: they're done by hand in Step 2.5.7.
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    target-branch: development
+    schedule:
+      interval: weekly
+    groups:
+      frontend:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: nuget
+    directories: [/backend, /tests/PortfolioApi.Tests]
+    target-branch: development
+    schedule:
+      interval: weekly
+    groups:
+      backend:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: development
+    schedule:
+      interval: weekly

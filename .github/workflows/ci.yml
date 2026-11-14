@@ -1,0 +1,57 @@
+# Copyright (c) 2026 Zainab Alawi. All rights reserved.
+#
+# Builds and tests both apps on every push to development/main and on pull requests,
+# so a broken build or an unlocked admin endpoint never reaches the live site.
+
+name: CI
+
+on:
+  push:
+    branches: [development, main]
+  pull_request:
+    branches: [main, development]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend build + security tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build API
+        run: dotnet build backend/PortfolioApi.csproj -c Release
+      - name: Run tests
+        run: dotnet test tests/PortfolioApi.Tests/PortfolioApi.Tests.csproj -c Release
+      - name: Build the Render Docker image (not pushed)
+        run: docker build backend
+
+  frontend:
+    name: Frontend lint + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Formatting
+        run: npm run format:check
+      - name: Type-check and build
+        # No backend in CI: pages fall back to on-demand rendering (see lib/api/public.ts).
+        run: npm run build

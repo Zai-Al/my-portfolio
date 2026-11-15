@@ -16,6 +16,11 @@ import { cardHover, cardTap, revealContainer, revealItem } from "@/lib/motionVar
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
+// Each card's share of the row: one per row on phones, two on tablets (a leftover card is
+// centred). On desktop the container becomes a one-row grid of equal columns, however many
+// channels are filled in.
+const slotClass = "min-w-0 basis-full sm:basis-[calc(50%-0.5rem)]";
+
 const cardClass =
   "group flex flex-col items-center gap-1 rounded-xl border border-border bg-panel/40 p-5 text-center transition-colors hover:border-accent/50 hover:shadow-[0_12px_30px_-10px_rgba(0,255,157,0.25)]";
 
@@ -50,7 +55,7 @@ export default function ContactSection({ settings }: { settings: SiteSettings })
   return (
     <>
       <motion.div
-        className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="mt-8 flex flex-wrap justify-center gap-4 lg:grid lg:auto-cols-fr lg:grid-flow-col"
         variants={revealContainer}
         initial={reduceMotion ? "show" : "hidden"}
         whileInView="show"
@@ -84,7 +89,7 @@ export default function ContactSection({ settings }: { settings: SiteSettings })
           variants={revealItem}
           whileHover={reduceMotion ? undefined : cardHover}
           whileTap={reduceMotion ? undefined : cardTap}
-          className={cardClass}
+          className={`${cardClass} ${slotClass}`}
         >
           <FaPaperPlane className="text-2xl text-accent transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           <p className="mt-2 font-display text-sm font-semibold">Message</p>
@@ -125,11 +130,11 @@ function ContactChannel({
       variants={revealItem}
       whileHover={reduceMotion ? undefined : cardHover}
       whileTap={reduceMotion ? undefined : cardTap}
-      className={cardClass}
+      className={`${cardClass} ${slotClass}`}
     >
       <Icon className="text-2xl text-accent transition-transform duration-300 group-hover:scale-110" />
       <p className="mt-2 font-display text-sm font-semibold">{label}</p>
-      <p className="font-mono text-xs text-gray-400 group-hover:text-accent">{value}</p>
+      <p className="break-all font-mono text-xs text-gray-400 group-hover:text-accent">{value}</p>
     </motion.a>
   );
 }
@@ -200,7 +205,7 @@ function RevealEmailChannel({ siteKey }: { siteKey: string }) {
   }
 
   return (
-    <motion.div variants={revealItem} className="flex flex-col">
+    <motion.div variants={revealItem} className={`flex flex-col ${slotClass}`}>
       <motion.button
         type="button"
         onClick={reveal}

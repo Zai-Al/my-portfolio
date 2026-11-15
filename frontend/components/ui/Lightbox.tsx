@@ -13,7 +13,8 @@ const isStorage = (url: string) => url.includes("/storage/v1/object/public/portf
 
 /**
  * One picture as large as the screen allows. Esc, ✕ or a click outside the picture close
- * it (only it, not the popup underneath); ‹ › flip through the set.
+ * it (only it, not the popup underneath); ‹ › or a swipe flip through the set. On phones
+ * ‹ › sit in a bar under the picture so they never cover it; from md up they sit at the sides.
  */
 export default function Lightbox({
   images,
@@ -30,14 +31,39 @@ export default function Lightbox({
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const touchX = useRef<number | null>(null);
   const reduceMotion = useReducedMotion();
   const open = index !== null && images.length > 0;
   useFocusTrap(ref, open, onClose);
 
   const step = (dir: -1 | 1) =>
     index !== null && onIndex((index + dir + images.length) % images.length);
-  const nav =
-    "absolute top-1/2 -translate-y-1/2 rounded-full border border-border bg-void/80 px-3 py-2 text-xl text-gray-200 hover:border-accent hover:text-accent";
+  const navButton =
+    "rounded-full border border-border bg-void/80 text-xl text-gray-200 hover:border-accent hover:text-accent";
+  const sideNav = `${navButton} absolute top-1/2 hidden -translate-y-1/2 px-3 py-2 md:block`;
+  const barNav = `${navButton} flex h-11 w-11 items-center justify-center`;
+  const multiple = images.length > 1;
+
+  // A horizontal swipe of 50px or more flips the picture (phones and tablets).
+  const onTouchStart = (e: React.TouchEvent) => (touchX.current = e.touches[0].clientX);
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null || !multiple) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    touchX.current = null;
+    if (Math.abs(dx) >= 50) step(dx < 0 ? 1 : -1);
+  };
+  const stepButton = (dir: -1 | 1, className: string) => (
+    <button
+      aria-label={dir < 0 ? "Previous screenshot" : "Next screenshot"}
+      onClick={(e) => {
+        e.stopPropagation();
+        step(dir);
+      }}
+      className={className}
+    >
+      {dir < 0 ? "‹" : "›"}
+    </button>
+  );
 
   // Rendered at the end of <body>: inside a section that moves (parallax), a "fixed"
   // popup would be placed relative to that section instead of the screen.
@@ -53,7 +79,7 @@ export default function Lightbox({
           role="dialog"
           aria-modal="true"
           aria-label={alt(index)}
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-void/95 p-4 focus-visible:outline-none md:p-10"
+          className="fixed inset-0 z-[70] flex flex-col items-center justify-center gap-3 bg-void/95 px-4 pb-4 pt-16 focus-visible:outline-none md:p-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -61,7 +87,12 @@ export default function Lightbox({
           onClick={onClose}
         >
           {/* All pictures load when it opens and are stacked, so ‹ › switch instantly. */}
-          <div className="relative h-full w-full" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative min-h-0 w-full flex-1"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
             {images.map((src, i) => (
               <Image
                 key={`${src}-${i}`}
@@ -83,31 +114,24 @@ export default function Lightbox({
           >
             ✕
           </button>
-          {images.length > 1 && (
+          {multiple && (
             <>
-              <button
-                aria-label="Previous screenshot"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  step(-1);
-                }}
-                className={`${nav} left-3`}
-              >
-                ‹
-              </button>
-              <button
-                aria-label="Next screenshot"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  step(1);
-                }}
-                className={`${nav} right-3`}
-              >
-                ›
-              </button>
-              <p className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-xs text-gray-400">
+              {stepButton(-1, `${sideNav} left-3`)}
+              {stepButton(1, `${sideNav} right-3`)}
+              <p className="absolute bottom-4 left-1/2 hidden -translate-x-1/2 font-mono text-xs text-gray-400 md:block">
                 {index + 1} / {images.length}
               </p>
+              {/* Phones: controls in their own row under the picture. */}
+              <div
+                className="flex shrink-0 items-center gap-6 md:hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {stepButton(-1, barNav)}
+                <p className="font-mono text-xs text-gray-400">
+                  {index + 1} / {images.length}
+                </p>
+                {stepButton(1, barNav)}
+              </div>
             </>
           )}
         </motion.div>

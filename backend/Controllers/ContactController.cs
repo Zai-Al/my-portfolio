@@ -27,6 +27,7 @@ public class ContactController : ControllerBase
 
     // Public - anyone can send a message via the contact form. Rate limited per IP.
     [HttpPost]
+    [AllowAnonymous]
     [EnableRateLimiting("contact")]
     public async Task<IActionResult> Send(ContactRequest request)
     {

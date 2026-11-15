@@ -60,11 +60,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var requireMfa = builder.Configuration.GetValue("Supabase:RequireMfa", true);
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy =>
+    void Admin(Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder policy)
     {
         policy.RequireAuthenticatedUser().RequireClaim("email", adminEmail);
         if (requireMfa) policy.RequireClaim("aal", "aal2");
-    });
+    }
+    options.AddPolicy("AdminOnly", Admin);
+
+    // Secure by default: any endpoint without its own [Authorize] or [AllowAnonymous] gets the
+    // admin rule, so a forgotten attribute locks an endpoint instead of exposing it.
+    // Public endpoints say so with [AllowAnonymous].
+    var fallback = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder();
+    Admin(fallback);
+    options.FallbackPolicy = fallback.Build();
 });
 
 // --- Client IPs behind Render's proxy (needed for per-IP rate limits) ---
@@ -168,7 +176,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health").AllowAnonymous(); // public: used by the uptime monitor
 
 app.Run();
 

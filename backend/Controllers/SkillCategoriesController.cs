@@ -20,6 +20,7 @@ public class SkillCategoriesController : OrderedCrudController<SkillCategory>
 
     // Categories come back with their skills nested, both in display order.
     [HttpGet]
+    [AllowAnonymous]
     public override async Task<IActionResult> GetAll() =>
         Ok(await Db.SkillCategories
             .AsNoTracking()

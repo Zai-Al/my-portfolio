@@ -16,6 +16,7 @@ public class SiteSettingsController : ControllerBase
 
     // Public - profile content shown on the site and used as AI context.
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> Get() =>
         Ok(await _db.SiteSettings.FindAsync(1) ?? new SiteSettings { Id = 1 });
 

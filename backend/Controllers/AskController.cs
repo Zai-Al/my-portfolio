@@ -2,6 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -56,6 +57,7 @@ public class AskController : ControllerBase
 
     // Public, but rate limited per visitor (see the "ask" policy in Program.cs).
     [HttpPost]
+    [AllowAnonymous]
     [EnableRateLimiting("ask")]
     public async Task Ask(AskRequest request, CancellationToken cancellationToken)
     {

@@ -55,10 +55,12 @@ public abstract class OrderedCrudController<T> : ControllerBase where T : class,
     }
 
     [HttpGet]
+    [AllowAnonymous] // the site reads its content without signing in
     public virtual async Task<IActionResult> GetAll() =>
         Ok(await Set.AsNoTracking().OrderBy(e => e.SortOrder).ThenBy(e => e.Id).ToListAsync());
 
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public virtual async Task<IActionResult> GetById(int id)
     {
         var entity = await Set.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);

@@ -77,13 +77,70 @@ async function fetchGithubStats(handle: string | null): Promise<string> {
   }
 }
 
+// Every listed command, for "did you mean" (the hidden easter egg is left out on purpose).
+const COMMANDS = [
+  "help",
+  "whoami",
+  "skills",
+  "projects",
+  "contact",
+  "curl resume.pdf",
+  "git log --stats",
+  "clear",
+];
+// First words that only ever start a command, never a question.
+const COMMAND_HEADS = new Set(["git", "curl"]);
+
+/**
+ * Lower-case, single spaces, and the long dashes phone keyboards make out of "--"
+ * ("git log —stats") turned back into "--".
+ */
+function normalizeCommand(raw: string): string {
+  return raw
+    .trim()
+    .replace(/[\u2013\u2014]/g, "--")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
+// Levenshtein distance: how many single-letter edits turn a into b.
+function editDistance(a: string, b: string): number {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j++)
+      row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = row;
+  }
+  return prev[b.length];
+}
+
+/**
+ * The command a near miss was meant to be, or null when it reads like a question for the AI.
+ * "git status" / "git log --status" (phone autocorrect) → "git log --stats"; "skils" → "skills".
+ */
+function suggestCommand(cmd: string): string | null {
+  const head = cmd.split(" ")[0];
+  const candidates = COMMAND_HEADS.has(head)
+    ? COMMANDS.filter((c) => c.startsWith(head))
+    : COMMANDS;
+  let best: string | null = null;
+  let bestDistance = Infinity;
+  for (const c of candidates) {
+    const d = editDistance(cmd, c);
+    if (d < bestDistance) [best, bestDistance] = [c, d];
+  }
+  if (COMMAND_HEADS.has(head)) return best;
+  return best && bestDistance <= Math.max(1, Math.floor(best.length / 4)) ? best : null;
+}
+
 // Recognized navigation commands. Anything not matched here falls through to the AI.
 // Returns null for "not handled", or a string/Promise<string> of output.
 function runCommand(
   cmd: string,
   links: { cvUrl: string | null; githubUrl: string | null; whoami: string; skills: string }
 ): string | Promise<string> | null {
-  switch (cmd.trim().toLowerCase()) {
+  switch (normalizeCommand(cmd)) {
     case "help":
       return HELP_TEXT;
     case "whoami":
@@ -167,13 +224,14 @@ export default function Terminal({
     appendLine({ type: "input", text: cmd });
     setInput("");
 
-    if (cmd.toLowerCase() === "clear") {
+    const normalized = normalizeCommand(cmd);
+    if (normalized === "clear") {
       setLines([]);
       return;
     }
 
     // Hidden easter egg - intentionally not listed in `help`.
-    if (cmd.toLowerCase() === "hack mainframe") {
+    if (normalized === "hack mainframe") {
       await runHackSequence();
       return;
     }
@@ -182,6 +240,17 @@ export default function Terminal({
     if (builtIn !== null) {
       const text = typeof builtIn === "string" ? builtIn : await builtIn;
       appendLine({ type: "output", text });
+      return;
+    }
+
+    // A near miss stays in the terminal, with the right command typed in ready to run.
+    const suggestion = suggestCommand(normalized);
+    if (suggestion) {
+      appendLine({
+        type: "output",
+        text: `command not found: ${cmd}\nDid you mean '${suggestion}'? Press Enter to run it.`,
+      });
+      setInput(suggestion);
       return;
     }
 
@@ -231,6 +300,10 @@ export default function Terminal({
           placeholder="type a command or ask anything..."
           maxLength={MAX_QUESTION_LENGTH}
           autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="send"
         />
       </form>
     </div>

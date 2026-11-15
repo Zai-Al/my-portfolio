@@ -10,4 +10,9 @@ namespace PortfolioApi.Controllers;
 public class GuidesController : OrderedCrudController<Guide>
 {
     public GuidesController(AppDbContext db) : base(db) { }
+
+    protected override Func<Guide, Guide, bool>? IsDuplicate => (a, b) => Same(a.Title, b.Title);
+
+    protected override string DuplicateMessage(Guide candidate, Guide existing) =>
+        $"A chatbot guide with the question \"{existing.Title}\" already exists.";
 }

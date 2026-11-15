@@ -13,9 +13,11 @@ export type ConfirmOptions = {
   cancelLabel?: string;
   /** Red confirm button, for things that can't be undone. */
   danger?: boolean;
+  /** Only one button: a notice to acknowledge, not a question (e.g. "already exists"). */
+  hideCancel?: boolean;
 };
 
-/** A yes/no question in the site's own modal (instead of the browser's confirm()). */
+/** A yes/no question, or a one-button notice, in the site's own modal (instead of confirm()/alert()). */
 export default function ConfirmDialog({
   open,
   options,
@@ -27,20 +29,30 @@ export default function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
-  const { title, message, confirmLabel = "ok", cancelLabel = "cancel", danger = false } = options;
+  const {
+    title,
+    message,
+    confirmLabel = "ok",
+    cancelLabel = "cancel",
+    danger = false,
+    hideCancel = false,
+  } = options;
   return (
     <Modal open={open} onClose={onCancel} title={title}>
       {message && <div className="text-sm text-gray-300">{message}</div>}
       <div className="mt-6 flex justify-end gap-2">
         {/* Cancel gets focus first, so Enter never deletes by accident. */}
+        {!hideCancel && (
+          <button
+            data-autofocus
+            onClick={onCancel}
+            className="rounded border border-border px-4 py-1.5 font-mono text-sm text-gray-300 hover:bg-white/5"
+          >
+            {cancelLabel}
+          </button>
+        )}
         <button
-          data-autofocus
-          onClick={onCancel}
-          className="rounded border border-border px-4 py-1.5 font-mono text-sm text-gray-300 hover:bg-white/5"
-        >
-          {cancelLabel}
-        </button>
-        <button
+          data-autofocus={hideCancel || undefined}
           onClick={onConfirm}
           className={`rounded border px-4 py-1.5 font-mono text-sm ${
             danger

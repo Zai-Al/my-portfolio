@@ -16,8 +16,9 @@ export class ApiError extends Error {
   }
 }
 
-// ASP.NET Core returns validation failures as ProblemDetails:
-// { title, errors: { Field: ["message", ...] } }. Pull out readable lines.
+// ASP.NET Core returns errors as ProblemDetails: validation failures as
+// { title, errors: { Field: ["message", ...] } }, others (e.g. 409 "already exists") as
+// { title, detail }. Pull out readable lines.
 async function readErrorDetails(res: Response): Promise<string[]> {
   try {
     const body = await res.json();
@@ -26,6 +27,7 @@ async function readErrorDetails(res: Response): Promise<string[]> {
         msgs.map((m) => (field && !m.includes(field) ? `${field}: ${m}` : m))
       );
     }
+    if (typeof body?.detail === "string" && body.detail) return [body.detail];
     if (typeof body?.title === "string") return [body.title];
   } catch {
     // empty or non-JSON body

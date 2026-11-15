@@ -16,6 +16,9 @@ export function describeError(e: unknown): string {
       return "Access denied. Log out and back in with your authenticator code.";
     case 404:
       return "That entry no longer exists. The list has been refreshed.";
+    case 409:
+      // The API names the existing entry, e.g. "You already have this experience: …".
+      return e.details[0] ?? "A matching entry already exists.";
     case 429:
       return "Too many requests. Wait a minute and try again.";
     default:

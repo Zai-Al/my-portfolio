@@ -10,7 +10,8 @@ namespace PortfolioApi.Controllers;
 
 /// <summary>
 /// Shared CRUD for content tables: anyone can read (ordered by SortOrder),
-/// only the admin can create, update or delete.
+/// only the admin can create, update or delete. A table can define what "the same record"
+/// means (<see cref="IsDuplicate"/>); saving one then returns 409 with a readable message.
 /// </summary>
 [ApiController]
 public abstract class OrderedCrudController<T> : ControllerBase where T : class, IOrderedEntity
@@ -19,6 +20,39 @@ public abstract class OrderedCrudController<T> : ControllerBase where T : class,
     protected OrderedCrudController(AppDbContext db) => Db = db;
 
     protected DbSet<T> Set => Db.Set<T>();
+
+    /// <summary>
+    /// The duplicate rule for this table: true when <paramref name="candidate"/> (being saved)
+    /// is the same record as <paramref name="existing"/>. Null = no check. Compare text with
+    /// <see cref="Same"/> so case and extra spaces don't matter.
+    /// </summary>
+    protected virtual Func<T, T, bool>? IsDuplicate => null;
+
+    /// <summary>The "already exists" message shown in the admin portal.</summary>
+    protected virtual string DuplicateMessage(T candidate, T existing) => "A matching entry already exists.";
+
+    /// <summary>Same text, ignoring upper/lower case and extra spaces.</summary>
+    protected static bool Same(string? a, string? b) => Normalize(a) == Normalize(b);
+
+    /// <summary>Like <see cref="Same"/>, but an empty value never matches.</summary>
+    protected static bool SameAndFilled(string? a, string? b) => Normalize(a) != "" && Same(a, b);
+
+    private static string Normalize(string? s) =>
+        string.Join(' ', (s ?? "").Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).ToLowerInvariant();
+
+    /// <summary>409 with a message when another row is the same record; null when it's fine to save.</summary>
+    private async Task<IActionResult?> RejectDuplicate(T candidate, int ownId)
+    {
+        if (IsDuplicate is not { } rule) return null;
+        // Content tables are small (tens of rows), so the rule runs in memory: simple, and the
+        // same comparison on every database provider.
+        var others = await Set.AsNoTracking().Where(e => e.Id != ownId).ToListAsync();
+        var match = others.FirstOrDefault(e => rule(candidate, e));
+        return match is null
+            ? null
+            : Problem(title: "Already exists", detail: DuplicateMessage(candidate, match),
+                statusCode: StatusCodes.Status409Conflict);
+    }
 
     [HttpGet]
     public virtual async Task<IActionResult> GetAll() =>
@@ -36,6 +70,7 @@ public abstract class OrderedCrudController<T> : ControllerBase where T : class,
     public virtual async Task<IActionResult> Create(T entity)
     {
         entity.Id = 0; // let the database assign the id
+        if (await RejectDuplicate(entity, 0) is { } conflict) return conflict;
         Set.Add(entity);
         await Db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
@@ -49,6 +84,7 @@ public abstract class OrderedCrudController<T> : ControllerBase where T : class,
         if (existing is null) return NotFound();
 
         updated.Id = id; // the route id is authoritative, not whatever the body sent
+        if (await RejectDuplicate(updated, id) is { } conflict) return conflict; // never clashes with itself
         Db.Entry(existing).CurrentValues.SetValues(updated);
         await Db.SaveChangesAsync();
         return NoContent();

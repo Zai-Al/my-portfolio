@@ -128,6 +128,14 @@ export default function CrudSection<T extends Ordered>({
         // Deleted somewhere else: nothing left to edit, so reload the list.
         close();
         onError(e);
+      } else if (e instanceof ApiError && e.status === 409) {
+        // Same record as an existing entry: say which one in a popup, keep the form open.
+        await confirm({
+          title: "This entry already exists",
+          message: describeError(e),
+          confirmLabel: "back to the form",
+          hideCancel: true,
+        });
       } else {
         // Shown inside the panel so the form (and what was typed) stays open.
         setPanelError(describeError(e));

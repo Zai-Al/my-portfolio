@@ -14,7 +14,9 @@ import { cardHover, cardTap, revealContainer, revealItem } from "@/lib/motionVar
 
 const isStorage = (url: string) => url.includes("/storage/v1/object/public/portfolio-media/");
 
-const REPO_SLUGS = new Set<string>([]);
+// Projects whose Repo button is shown (when their RepoUrl is set). Others keep their RepoUrl
+// in the database (the AI guide can still mention it) but show no button.
+const REPO_SLUGS = new Set<string>(["portfolio"]);
 const DEMO_SLUGS = new Set(["failed-orders-ticketing", "quickpharma-plus"]);
 
 export default function ProjectsSection({ projects }: { projects: Project[] }) {

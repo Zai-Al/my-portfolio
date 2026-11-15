@@ -27,7 +27,7 @@ Every piece of content on the site (experience, education, certifications, skill
 - **Content from the database.** Nothing about me is hard-coded in the frontend. A background indexer keeps the AI's knowledge in step: every admin save queues a re-embed of only the text that changed.
 - **Private admin dashboard.** Password plus authenticator-app code (Supabase Auth, TOTP). The API itself checks the second factor, so a stolen password alone can't change anything.
 - **Interactive extras.** A working terminal (`help`, `whoami`, `skills`, `projects`, `git log --stats`, …), live GitHub stats, and a Playground page with four small browser games.
-- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, and 203 automated API tests in CI.
+- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, and 208 automated API tests in CI.
 
 ## Architecture
 
@@ -84,16 +84,17 @@ flowchart LR
 - Two-factor admin login, checked by the API (`aal2`), sign-ups disabled
 - Per-IP rate limits: contact form 5 per 10 minutes; AI guide 10 per minute and 100 per day
 - Contact form honeypot and length limits; AI questions capped at 500 characters
-- Content Security Policy, HSTS, `frame-ancestors`, `Referrer-Policy` and `Permissions-Policy` headers
+- Security headers on the site (Content Security Policy, HSTS, `frame-ancestors`, `Referrer-Policy`, `Permissions-Policy`) and on the API (`nosniff`, a deny-all CSP, no framing, HSTS)
 - CORS locked to the frontend origin; errors returned as ProblemDetails with no stack traces
 - Secrets only in `dotnet user-secrets`, `.env.local` and the hosting dashboards, never in the repo
+- Supply chain: GitHub Actions pinned to exact commits, dependency review on pull requests, CodeQL, Dependabot and secret scanning with push protection
 
 ## Tech stack
 
 **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
 **Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth and Storage, Google Gemini
-**Tooling:** xUnit + `WebApplicationFactory` (203 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
+**Tooling:** xUnit + `WebApplicationFactory` (208 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 
 ## Repository layout

@@ -25,6 +25,7 @@ Every piece of content on the site (experience, education, certifications, skill
 
 - **AI guide (RAG).** Visitors ask questions in a chat panel or in the home-page terminal. The API embeds the question, finds the closest pieces of my content with pgvector, and has Gemini answer from those pieces only. The answer streams back word by word (Server-Sent Events) with links to where it came from on the site.
 - **Content from the database.** Nothing about me is hard-coded in the frontend. A background indexer keeps the AI's knowledge in step: every admin save queues a re-embed of only the text that changed.
+- **Live updates.** Save something in the admin dashboard and every open page shows it within a second, without a reload (Supabase Realtime Broadcast on a private channel only the admin can send to).
 - **Private admin dashboard.** Password plus authenticator-app code (Supabase Auth, TOTP). The API itself checks the second factor, so a stolen password alone can't change anything.
 - **Interactive extras.** A working terminal (`help`, `whoami`, `skills`, `projects`, `git log --stats`, …), live GitHub stats, and a Playground page with four small browser games.
 - **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, and 211 automated API tests in CI.
@@ -49,6 +50,7 @@ flowchart LR
         DB[("PostgreSQL<br/>+ pgvector")]
         AUTH["Auth<br/>password + TOTP"]
         ST["Storage<br/>images · CV"]
+        RT["Realtime<br/>private channel"]
     end
 
     GEM["Google Gemini<br/>embeddings + answers"]
@@ -56,6 +58,7 @@ flowchart LR
     FE -- "REST · cached reads" --> API
     FE -- "admin sign-in" --> AUTH
     FE -- "admin uploads" --> ST
+    FE -- "content changed (admin sends, pages listen)" --> RT
     API -- "EF Core" --> DB
     API -- "verifies admin JWT (aal2)" --> AUTH
     API --> GEM
@@ -77,12 +80,14 @@ flowchart LR
 | **Background indexing** with a `Channel<T>` queue and a `BackgroundService` | Admin saves return instantly. Embeddings are paced for the Gemini free tier, and only changed text is re-embedded. |
 | **Streamed answers** (Server-Sent Events) | The first words show up in about a second instead of after the whole answer is ready. |
 | **Cached reads** (Next.js, 1 hour) + on-save revalidation | Visitors get a fast page even while the free-tier API is asleep; admin edits still show up immediately. |
+| **Live updates** with Supabase Realtime Broadcast, not SignalR | After a save, the site clears its cache and then sends "changed" on a private channel; open pages reload their data in place. Sockets to the free-tier API would wake it for every visitor, and the API hears about a save before the cache is cleared. |
 | **Free tiers only** | Vercel, Render, Supabase and Gemini all run on their free plans. |
 
 ## Security
 
 - Secure by default: every API endpoint is admin-only unless explicitly marked public, and a test pins down the exact public list
 - Two-factor admin login, checked by the API (`aal2`), sign-ups disabled
+- Live updates use a private Realtime channel: anyone may listen, only the admin with `aal2` may send (RLS on `realtime.messages`); public channels are turned off
 - Per-IP rate limits: contact form 5 per 10 minutes; AI guide 10 per minute and 100 per day
 - Contact form honeypot and length limits; AI questions capped at 500 characters
 - Security headers on the site (Content Security Policy, HSTS, `frame-ancestors`, `Referrer-Policy`, `Permissions-Policy`) and on the API (`nosniff`, a deny-all CSP, no framing, HSTS)
@@ -94,7 +99,7 @@ flowchart LR
 
 **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
-**Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth and Storage, Google Gemini
+**Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth, Storage and Realtime, Google Gemini
 **Tooling:** xUnit + `WebApplicationFactory` (211 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 

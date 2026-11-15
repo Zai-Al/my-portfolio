@@ -5,9 +5,12 @@
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { adminDelete, adminPatch } from "@/lib/api/admin";
 import type { ContactMessage } from "@/lib/types";
+import { formatDateTime } from "@/lib/format";
 import { useListSearch } from "../_hooks/useListSearch";
+import { INBOX_SEARCH } from "../_lib/searchConfig";
+import { SearchPanel, SearchToggle } from "./SearchPanel";
 
-/** Contact-form messages: search, filter by read state, sort, mark read/unread, delete. */
+/** Contact-form messages: search, filter, sort, mark read/unread, delete. Dates are day/month/year. */
 export default function Inbox({
   token,
   messages,
@@ -21,34 +24,12 @@ export default function Inbox({
 }) {
   const [confirm, confirmDialog] = useConfirm();
 
-  // One box covers sender, email, subject and message; chips narrow by read state.
-  const { toggle, panel, filtered, values } = useListSearch(messages, {
-    label: "messages",
-    text: (m) => [m.name, m.email, m.subject, m.message],
-    filters: [
-      {
-        key: "status",
-        label: "Show",
-        options: [
-          { value: "", label: "All" },
-          { value: "unread", label: "Unread" },
-          { value: "read", label: "Read" },
-        ],
-        test: (m, v) => (v === "unread" ? !m.read : m.read),
-      },
-      {
-        key: "sort",
-        label: "Sort",
-        options: [
-          { value: "", label: "Newest first" },
-          { value: "oldest", label: "Oldest first" },
-        ],
-      },
-    ],
-  });
+  // Separate boxes for sender, subject and message, plus read state, sort and dates.
+  const search = useListSearch(messages, INBOX_SEARCH);
+  const { filtered, state } = search;
   const time = (m: ContactMessage) => new Date(m.receivedAt).getTime();
   const listed = [...filtered].sort((a, b) =>
-    values.sort === "oldest" ? time(a) - time(b) : time(b) - time(a)
+    state.chips.sort === "oldest" ? time(a) - time(b) : time(b) - time(a)
   );
 
   async function toggleRead(m: ContactMessage) {
@@ -83,7 +64,7 @@ export default function Inbox({
       .split("\n")
       .map((line) => `> ${line}`)
       .join("\n");
-    const body = `\n\n${m.name} wrote on ${new Date(m.receivedAt).toLocaleString()}:\n${quoted}`;
+    const body = `\n\n${m.name} wrote on ${formatDateTime(m.receivedAt)}:\n${quoted}`;
     return `mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
@@ -91,8 +72,10 @@ export default function Inbox({
     <section>
       {messages.length > 0 && (
         <>
-          <div className="flex justify-end">{toggle}</div>
-          {panel}
+          <div className="flex justify-end">
+            <SearchToggle search={search} />
+          </div>
+          <SearchPanel search={search} />
         </>
       )}
       <ul className="mt-3 space-y-2">
@@ -108,9 +91,7 @@ export default function Inbox({
                 <p className="break-words">
                   {!m.read && <span className="mr-2 text-accent">●</span>}
                   {m.name} &lt;{m.email}&gt;{" "}
-                  <span className="text-xs text-gray-500">
-                    {new Date(m.receivedAt).toLocaleString()}
-                  </span>
+                  <span className="text-xs text-gray-500">{formatDateTime(m.receivedAt)}</span>
                 </p>
                 {m.subject && <p className="mt-1 font-semibold text-gray-200">{m.subject}</p>}
                 <p className="mt-1 whitespace-pre-wrap break-words text-gray-300">{m.message}</p>

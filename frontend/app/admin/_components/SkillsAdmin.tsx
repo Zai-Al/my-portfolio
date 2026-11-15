@@ -5,6 +5,7 @@
 import { useState } from "react";
 import type { Skill, SkillCategory } from "@/lib/types";
 import { CATEGORY_FIELDS, skillFields } from "../_lib/formConfig";
+import { SKILL_SEARCH } from "../_lib/searchConfig";
 import CrudSection from "./CrudSection";
 
 // --- Skills page: categories, plus skills filtered by category ---
@@ -107,7 +108,7 @@ export default function SkillsAdmin({
             defaults={{ skillCategoryId: defaultCategory }}
             groupOf={activeFilter === "all" ? (s) => categoryName(s.skillCategoryId) : undefined}
             renderLabel={(s) => s.name}
-            search={{ label: "skills", text: (s) => [s.name, s.includes] }}
+            search={SKILL_SEARCH}
             onChanged={onSaved}
             onError={onError}
           />

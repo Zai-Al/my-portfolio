@@ -2,6 +2,7 @@
 
 "use client";
 
+import { formatDateTime } from "@/lib/format";
 import { useCallback, useEffect, useState } from "react";
 import { getKnowledgeStatus, rebuildKnowledge, type KnowledgeStatus } from "@/lib/api/admin";
 import { describeError } from "../_lib/describeError";
@@ -88,7 +89,7 @@ export default function AiKnowledgePanel({ token }: { token: string }) {
           <dt className="text-gray-500">last rebuild</dt>
           <dd>
             {status.lastFinishedAt
-              ? `${new Date(status.lastFinishedAt).toLocaleString()} - ${status.lastMessage ?? ""}`
+              ? `${formatDateTime(status.lastFinishedAt)} - ${status.lastMessage ?? ""}`
               : "not since the server started"}
           </dd>
         </dl>

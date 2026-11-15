@@ -14,7 +14,9 @@ import {
   type FieldConfig,
   type FieldType,
 } from "../_lib/fields";
-import { useListSearch, type SearchConfig } from "../_hooks/useListSearch";
+import { useListSearch } from "../_hooks/useListSearch";
+import type { SearchConfig } from "../_lib/search";
+import { SearchPanel, SearchToggle } from "./SearchPanel";
 import EditPanel from "./EditPanel";
 import FieldInput from "./FieldInput";
 
@@ -77,7 +79,8 @@ export default function CrudSection<T extends Ordered>({
   const editing = editingId !== null ? items.find((i) => i.id === editingId) : undefined;
 
   // While searching, only matches are listed and reordering is off (moves need the full list).
-  const { toggle, panel, filtered, active: searching } = useListSearch(shown, search);
+  const listSearch = useListSearch(shown, search);
+  const { filtered, searching } = listSearch;
 
   function open(next: Partial<T>, id: number | null) {
     setEditingId(id);
@@ -202,7 +205,7 @@ export default function CrudSection<T extends Ordered>({
       <div className="flex items-center justify-between">
         <h2 className="font-display text-xl font-semibold">{title}</h2>
         <div className="flex items-center gap-2">
-          {toggle}
+          <SearchToggle search={listSearch} />
           <button
             onClick={startCreate}
             className="rounded border border-accent px-3 py-1 font-mono text-xs text-accent hover:bg-accent/10"
@@ -211,7 +214,7 @@ export default function CrudSection<T extends Ordered>({
           </button>
         </div>
       </div>
-      {panel}
+      <SearchPanel search={listSearch} />
       {searching && (
         <p className="mt-2 font-mono text-xs text-gray-500">
           Showing matches only. Clear the search to reorder.

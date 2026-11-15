@@ -1,0 +1,14 @@
+<!-- Copyright (c) 2026 Zainab Alawi. All rights reserved. -->
+<!-- Favicon: a terminal prompt ">_" in the site's accent green on the void background,
+     with an aurora (teal to purple) edge. Shapes only, no fonts, so it looks the same everywhere. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1fd1a3"/>
+      <stop offset="1" stop-color="#7c6cff"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0a0e14" stroke="url(#edge)" stroke-width="3"/>
+  <polyline points="17,21 29,32 17,43" fill="none" stroke="#00ff9d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="33" y="38" width="15" height="6" rx="2" fill="#00ff9d"/>
+</svg>

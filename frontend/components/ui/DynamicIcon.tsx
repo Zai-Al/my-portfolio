@@ -45,6 +45,7 @@ import {
   FaPhp,
   FaPlug,
   FaTerminal,
+  FaRobot,
 } from "react-icons/fa";
 import {
   SiTypescript,
@@ -56,6 +57,8 @@ import {
   SiNextdotjs,
   SiPostman,
   SiTailwindcss,
+  SiSupabase,
+  SiVercel,
 } from "react-icons/si";
 import { TbBrandCSharp, TbBrandVscode } from "react-icons/tb";
 import { GiSnake } from "react-icons/gi";
@@ -108,6 +111,7 @@ const ICON_MAP: Record<string, IconType> = {
   FaPhp,
   FaPlug,
   FaTerminal,
+  FaRobot,
   SiTypescript,
   SiDotnet,
   SiPostgresql,
@@ -117,6 +121,8 @@ const ICON_MAP: Record<string, IconType> = {
   SiNextdotjs,
   SiPostman,
   SiTailwindcss,
+  SiSupabase,
+  SiVercel,
   TbBrandCSharp,
   TbBrandVscode,
   GiSnake,

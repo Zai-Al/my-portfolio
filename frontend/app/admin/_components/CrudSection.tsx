@@ -14,6 +14,7 @@ import {
   type FieldConfig,
   type FieldType,
 } from "../_lib/fields";
+import { useListSearch, type SearchConfig } from "../_hooks/useListSearch";
 import EditPanel from "./EditPanel";
 import FieldInput from "./FieldInput";
 
@@ -38,6 +39,7 @@ export default function CrudSection<T extends Ordered>({
   defaults,
   groupOf,
   confirmDelete,
+  search,
 }: {
   title: string;
   token: string;
@@ -53,6 +55,8 @@ export default function CrudSection<T extends Ordered>({
   groupOf?: (item: T) => string;
   /** Extra text in the delete dialog (default: "This can't be undone."). */
   confirmDelete?: (item: T) => string;
+  /** Adds a 🔍 search (and filter chips) to this list. */
+  search?: SearchConfig<T>;
 }) {
   const [form, setForm] = useState<Partial<T> | null>(null);
   const [initial, setInitial] = useState("");
@@ -71,6 +75,9 @@ export default function CrudSection<T extends Ordered>({
       : items;
 
   const editing = editingId !== null ? items.find((i) => i.id === editingId) : undefined;
+
+  // While searching, only matches are listed and reordering is off (moves need the full list).
+  const { toggle, panel, filtered, active: searching } = useListSearch(shown, search);
 
   function open(next: Partial<T>, id: number | null) {
     setEditingId(id);
@@ -163,6 +170,7 @@ export default function CrudSection<T extends Ordered>({
 
   const sameGroup = (a: T, b: T) => !groupOf || groupOf(a) === groupOf(b);
   const canMove = (i: number, dir: -1 | 1) => {
+    if (searching) return false;
     const j = i + dir;
     return j >= 0 && j < shown.length && sameGroup(shown[i], shown[j]);
   };
@@ -193,18 +201,28 @@ export default function CrudSection<T extends Ordered>({
     <section>
       <div className="flex items-center justify-between">
         <h2 className="font-display text-xl font-semibold">{title}</h2>
-        <button
-          onClick={startCreate}
-          className="rounded border border-accent px-3 py-1 font-mono text-xs text-accent hover:bg-accent/10"
-        >
-          + add
-        </button>
+        <div className="flex items-center gap-2">
+          {toggle}
+          <button
+            onClick={startCreate}
+            className="rounded border border-accent px-3 py-1 font-mono text-xs text-accent hover:bg-accent/10"
+          >
+            + add
+          </button>
+        </div>
       </div>
+      {panel}
+      {searching && (
+        <p className="mt-2 font-mono text-xs text-gray-500">
+          Showing matches only. Clear the search to reorder.
+        </p>
+      )}
 
       <ul className="mt-3 space-y-2">
-        {shown.map((item, i) => {
+        {filtered.map((item, i) => {
           const group = groupOf?.(item);
-          const showGroup = group !== undefined && (i === 0 || groupOf?.(shown[i - 1]) !== group);
+          const showGroup =
+            group !== undefined && (i === 0 || groupOf?.(filtered[i - 1]) !== group);
           const label = renderLabel(item);
           return (
             <Fragment key={item.id}>
@@ -224,7 +242,7 @@ export default function CrudSection<T extends Ordered>({
                     onClick={() => move(i, -1)}
                     disabled={!canMove(i, -1) || moving}
                     aria-label={`Move "${label}" up`}
-                    title="Move up"
+                    title={searching ? "Clear the search to reorder" : "Move up"}
                     className={iconButton}
                   >
                     ↑
@@ -233,7 +251,7 @@ export default function CrudSection<T extends Ordered>({
                     onClick={() => move(i, 1)}
                     disabled={!canMove(i, 1) || moving}
                     aria-label={`Move "${label}" down`}
-                    title="Move down"
+                    title={searching ? "Clear the search to reorder" : "Move down"}
                     className={iconButton}
                   >
                     ↓
@@ -253,6 +271,9 @@ export default function CrudSection<T extends Ordered>({
           );
         })}
         {items.length === 0 && <li className="font-mono text-sm text-gray-500">none yet</li>}
+        {items.length > 0 && filtered.length === 0 && (
+          <li className="font-mono text-sm text-gray-500">no matches</li>
+        )}
       </ul>
 
       <EditPanel

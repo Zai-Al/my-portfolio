@@ -107,6 +107,7 @@ export default function SkillsAdmin({
             defaults={{ skillCategoryId: defaultCategory }}
             groupOf={activeFilter === "all" ? (s) => categoryName(s.skillCategoryId) : undefined}
             renderLabel={(s) => s.name}
+            search={{ label: "skills", text: (s) => [s.name, s.includes] }}
             onChanged={onSaved}
             onError={onError}
           />

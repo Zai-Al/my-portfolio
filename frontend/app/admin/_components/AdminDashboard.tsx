@@ -116,6 +116,10 @@ export default function AdminDashboard({
                   basePath="/api/experiences"
                   fields={EXPERIENCE_FIELDS}
                   renderLabel={(e) => `${e.role} @ ${e.company}`}
+                  search={{
+                    label: "experience",
+                    text: (e) => [e.company, e.role, e.department, e.location, e.tech],
+                  }}
                 />
               )}
 
@@ -128,6 +132,10 @@ export default function AdminDashboard({
                     basePath="/api/education"
                     fields={EDUCATION_FIELDS}
                     renderLabel={(e) => `${e.degree} @ ${e.institution}`}
+                    search={{
+                      label: "education",
+                      text: (e) => [e.institution, e.degree, e.location, e.awards],
+                    }}
                   />
                   <CrudSection<Certification>
                     {...crud}
@@ -136,6 +144,24 @@ export default function AdminDashboard({
                     basePath="/api/certifications"
                     fields={CERTIFICATION_FIELDS}
                     renderLabel={(c) => c.name}
+                    search={{
+                      label: "certifications",
+                      text: (c) => [c.name, c.issuer, c.credentialId],
+                      filters: [
+                        {
+                          key: "issuer",
+                          label: "Issuer",
+                          options: [
+                            { value: "", label: "All" },
+                            ...[...new Set(data.certifications.map((c) => c.issuer.trim()))]
+                              .filter(Boolean)
+                              .sort()
+                              .map((issuer) => ({ value: issuer, label: issuer })),
+                          ],
+                          test: (c, issuer) => c.issuer.trim() === issuer,
+                        },
+                      ],
+                    }}
                   />
                 </>
               )}
@@ -158,6 +184,22 @@ export default function AdminDashboard({
                   basePath="/api/projects"
                   fields={PROJECT_FIELDS}
                   renderLabel={(p) => p.title}
+                  search={{
+                    label: "projects",
+                    text: (p) => [p.title, p.slug, p.summary, p.context, p.tech],
+                    filters: [
+                      {
+                        key: "featured",
+                        label: "Show",
+                        options: [
+                          { value: "", label: "All" },
+                          { value: "featured", label: "Featured" },
+                          { value: "other", label: "Not featured" },
+                        ],
+                        test: (p, v) => (v === "featured" ? p.featured : !p.featured),
+                      },
+                    ],
+                  }}
                 />
               )}
 
@@ -170,6 +212,10 @@ export default function AdminDashboard({
                     basePath="/api/guides"
                     fields={GUIDE_FIELDS}
                     renderLabel={(g) => g.title}
+                    search={{
+                      label: "chatbot guides",
+                      text: (g) => [g.title, g.keywords, g.answer],
+                    }}
                   />
                   <AiKnowledgePanel token={token} />
                 </>

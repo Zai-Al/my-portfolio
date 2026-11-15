@@ -5,8 +5,9 @@
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { adminDelete, adminPatch } from "@/lib/api/admin";
 import type { ContactMessage } from "@/lib/types";
+import { useListSearch } from "../_hooks/useListSearch";
 
-/** Contact-form messages: mark read/unread, delete. */
+/** Contact-form messages: search, filter by read state, sort, mark read/unread, delete. */
 export default function Inbox({
   token,
   messages,
@@ -19,6 +20,36 @@ export default function Inbox({
   onError: (e: unknown) => void;
 }) {
   const [confirm, confirmDialog] = useConfirm();
+
+  // One box covers sender, email, subject and message; chips narrow by read state.
+  const { toggle, panel, filtered, values } = useListSearch(messages, {
+    label: "messages",
+    text: (m) => [m.name, m.email, m.subject, m.message],
+    filters: [
+      {
+        key: "status",
+        label: "Show",
+        options: [
+          { value: "", label: "All" },
+          { value: "unread", label: "Unread" },
+          { value: "read", label: "Read" },
+        ],
+        test: (m, v) => (v === "unread" ? !m.read : m.read),
+      },
+      {
+        key: "sort",
+        label: "Sort",
+        options: [
+          { value: "", label: "Newest first" },
+          { value: "oldest", label: "Oldest first" },
+        ],
+      },
+    ],
+  });
+  const time = (m: ContactMessage) => new Date(m.receivedAt).getTime();
+  const listed = [...filtered].sort((a, b) =>
+    values.sort === "oldest" ? time(a) - time(b) : time(b) - time(a)
+  );
 
   async function toggleRead(m: ContactMessage) {
     try {
@@ -58,8 +89,14 @@ export default function Inbox({
 
   return (
     <section>
-      <ul className="space-y-2">
-        {messages.map((m) => (
+      {messages.length > 0 && (
+        <>
+          <div className="flex justify-end">{toggle}</div>
+          {panel}
+        </>
+      )}
+      <ul className="mt-3 space-y-2">
+        {listed.map((m) => (
           <li
             key={m.id}
             className={`rounded border p-3 font-mono text-sm ${
@@ -104,6 +141,9 @@ export default function Inbox({
         ))}
         {messages.length === 0 && (
           <li className="font-mono text-sm text-gray-500">no messages yet</li>
+        )}
+        {messages.length > 0 && listed.length === 0 && (
+          <li className="font-mono text-sm text-gray-500">no matches</li>
         )}
       </ul>
       {confirmDialog}

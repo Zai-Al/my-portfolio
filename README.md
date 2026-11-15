@@ -28,7 +28,7 @@ Every piece of content on the site (experience, education, certifications, skill
 - **Live updates.** Save something in the admin dashboard and every open page shows it within a second, without a reload (Supabase Realtime Broadcast on a private channel only the admin can send to).
 - **Private admin dashboard.** Password plus authenticator-app code (Supabase Auth, TOTP). The API itself checks the second factor, so a stolen password alone can't change anything.
 - **Interactive extras.** A working terminal (`help`, `whoami`, `skills`, `projects`, `git log --stats`, …), live GitHub stats, and a Playground page with four small browser games.
-- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, and 211 automated API tests in CI.
+- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, contact details hidden from scrapers behind Cloudflare Turnstile, and 222 automated API tests in CI.
 
 ## Architecture
 
@@ -88,7 +88,8 @@ flowchart LR
 - Secure by default: every API endpoint is admin-only unless explicitly marked public, and a test pins down the exact public list
 - Two-factor admin login, checked by the API (`aal2`), sign-ups disabled
 - Live updates use a private Realtime channel: anyone may listen, only the admin with `aal2` may send (RLS on `realtime.messages`); public channels are turned off
-- Per-IP rate limits: contact form 5 per 10 minutes; AI guide 10 per minute and 100 per day
+- Contact details kept from scrapers: the phone number is never public, and the email is not in the page, the public API, the structured data or the AI guide's knowledge. The "Show email" button reveals it only after a Cloudflare Turnstile check, verified by the API
+- Per-IP rate limits: contact form 5 per 10 minutes; "Show email" 10 per 10 minutes; AI guide 10 per minute and 100 per day
 - Contact form honeypot and length limits; AI questions capped at 500 characters
 - Security headers on the site (Content Security Policy, HSTS, `frame-ancestors`, `Referrer-Policy`, `Permissions-Policy`) and on the API (`nosniff`, a deny-all CSP, no framing, HSTS)
 - CORS locked to the frontend origin; errors returned as ProblemDetails with no stack traces
@@ -100,7 +101,7 @@ flowchart LR
 **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
 **Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth, Storage and Realtime, Google Gemini
-**Tooling:** xUnit + `WebApplicationFactory` (211 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
+**Tooling:** xUnit + `WebApplicationFactory` (222 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 
 ## Repository layout
@@ -108,7 +109,7 @@ flowchart LR
 ```
 backend/    ASP.NET Core Web API (controllers, EF Core models and migrations, AI services)
 frontend/   Next.js app (public site, /playground, private /admin)
-tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge)
+tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge, hidden contact details)
 .github/    CI (build, tests, lint, format, Docker build), keep-alive ping, Dependabot
 ```
 

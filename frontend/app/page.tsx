@@ -15,6 +15,7 @@ import CertificationsSection from "@/components/sections/CertificationsSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import CursorGlow from "@/components/layout/CursorGlow";
+import LiveUpdates from "@/components/layout/LiveUpdates";
 import {
   getCertifications,
   getEducation,
@@ -110,6 +111,8 @@ export default async function Home() {
       </main>
       {/* Public pages only - the admin portal has its own layout. */}
       <Footer name={settings.fullName} />
+      {/* Reloads this page's data the moment I save in the admin portal. */}
+      <LiveUpdates />
       <ChatWidget ownerName={settings.fullName} suggestions={starterQuestions(guides)} />
     </>
   );

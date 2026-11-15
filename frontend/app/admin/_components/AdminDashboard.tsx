@@ -2,7 +2,8 @@
 
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useContentChanges } from "@/lib/liveUpdates";
 import { refreshPublicPages } from "@/lib/revalidate";
 import type { Certification, Education, Experience, Guide, Project } from "@/lib/types";
 import { useAdminData } from "../_hooks/useAdminData";
@@ -46,9 +47,20 @@ export default function AdminDashboard({
   const data = useAdminData(token, server.status === "ready");
   const [page, setPage] = useAdminPage();
   const [writeError, setWriteError] = useState("");
+  const lastPublish = useRef(0);
 
-  // After any save: drop the public site's cache, and say so if that was refused.
+  // A save made on another device (or tab) reloads the lists here too. Our own saves already
+  // reloaded them, so their echo a moment later is skipped.
+  const { refresh } = data;
+  const onRemoteChange = useCallback(() => {
+    if (Date.now() - lastPublish.current > 5_000) refresh();
+  }, [refresh]);
+  useContentChanges(onRemoteChange, server.status === "ready");
+
+  // After any save: drop the public site's cache (which also tells open pages to reload),
+  // and say so if that was refused.
   const publish = () => {
+    lastPublish.current = Date.now();
     refreshPublicPages(token).then((ok) => {
       if (!ok)
         setWriteError(

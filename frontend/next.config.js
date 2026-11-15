@@ -13,6 +13,8 @@ function origin(url) {
 
 const apiOrigin = origin(process.env.NEXT_PUBLIC_API_URL);
 const supabaseOrigin = origin(process.env.NEXT_PUBLIC_SUPABASE_URL);
+// Live updates: Supabase Realtime is a WebSocket on the same host (wss://).
+const supabaseRealtime = supabaseOrigin && supabaseOrigin.replace(/^https:/, "wss:");
 
 // Content-Security-Policy: the browser may only load things from the places listed here.
 // If a new outside service is added (images, scripts, APIs), it has to be added here too.
@@ -27,8 +29,16 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com",
   // data: is the two-factor QR code; Supabase is for images once they move to Storage (Step 3.3).
   ["img-src 'self' data: blob:", supabaseOrigin].filter(Boolean).join(" "),
-  // Who the page may call: our API, Supabase Auth, GitHub stats (terminal), dev hot reload.
-  ["connect-src 'self'", apiOrigin, supabaseOrigin, "https://api.github.com", isDev && "ws:"]
+  // Who the page may call: our API, Supabase Auth, Supabase Realtime (live updates),
+  // GitHub stats (terminal), dev hot reload.
+  [
+    "connect-src 'self'",
+    apiOrigin,
+    supabaseOrigin,
+    supabaseRealtime,
+    "https://api.github.com",
+    isDev && "ws:",
+  ]
     .filter(Boolean)
     .join(" "),
   "frame-src 'none'",

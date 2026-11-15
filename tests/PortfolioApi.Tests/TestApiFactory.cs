@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using PortfolioApi.Data;
+using PortfolioApi.Services.Turnstile;
 
 namespace PortfolioApi.Tests;
 
@@ -49,6 +50,10 @@ public class TestApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
             services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(_databaseName));
 
+            // Never call Cloudflare: a fake Turnstile that only accepts FakeTurnstile.ValidToken.
+            services.RemoveAll<ITurnstileVerifier>();
+            services.AddSingleton<ITurnstileVerifier, FakeTurnstile>();
+
             // Validate tokens with the test key instead of fetching Supabase's signing keys.
             services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, o =>
             {
@@ -81,6 +86,15 @@ public class TestApiFactory : WebApplicationFactory<Program>
             SigningCredentials = new SigningCredentials(SigningKey, SecurityAlgorithms.HmacSha256),
         });
     }
+}
+
+/// <summary>Stands in for Cloudflare: one token passes (for the right action), everything else fails.</summary>
+public class FakeTurnstile : ITurnstileVerifier
+{
+    public const string ValidToken = "passed-the-challenge";
+
+    public Task<bool> VerifyAsync(string token, string expectedAction, string? remoteIp, CancellationToken ct = default) =>
+        Task.FromResult(token == ValidToken && expectedAction == "reveal-email");
 }
 
 internal static class ServiceCollectionExtensions

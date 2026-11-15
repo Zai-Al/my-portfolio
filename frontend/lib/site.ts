@@ -59,7 +59,6 @@ export function personJsonLd(s: SiteSettings): string {
     jobTitle: s.headline || undefined,
     description: s.bio ? shortBio(s, 300) : undefined,
     url: SITE_URL,
-    email: s.email ? `mailto:${s.email}` : undefined,
     address: s.location ? { "@type": "PostalAddress", addressCountry: s.location } : undefined,
     knowsLanguage: s.spokenLanguages.length
       ? s.spokenLanguages.map((l) => l.replace(/\s*\(.*\)\s*$/, ""))

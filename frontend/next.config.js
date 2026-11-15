@@ -23,7 +23,8 @@ const csp = [
   // Next.js injects small inline scripts; dev mode also needs eval for hot reload, and
   // Vercel Analytics / Speed Insights load their debug scripts from va.vercel-scripts.com
   // (in production they're served from this site's own /_vercel/* paths instead).
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
+  // Cloudflare Turnstile (spam check behind "Show email") loads its script from challenges.cloudflare.com.
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
   // Inline styles come from Framer Motion; the fonts' CSS comes from Google Fonts.
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
@@ -41,7 +42,7 @@ const csp = [
   ]
     .filter(Boolean)
     .join(" "),
-  "frame-src 'none'",
+  "frame-src https://challenges.cloudflare.com", // the Turnstile challenge runs in its own frame
   "frame-ancestors 'none'", // nobody may put this site (or /admin) inside a frame
   "object-src 'none'",
   "base-uri 'self'",

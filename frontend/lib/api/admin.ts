@@ -24,6 +24,10 @@ export const adminReorder = (basePath: string, token: string, ids: number[]) =>
 export const getMessages = (token: string) =>
   request<ContactMessage[]>("/api/contact", { token, init: { cache: "no-store" } });
 
+/** The full settings, email and phone included (the public read leaves them out). */
+export const getFullSiteSettings = (token: string) =>
+  request<SiteSettings>("/api/site-settings/full", { token, init: { cache: "no-store" } });
+
 export const saveSiteSettings = (token: string, settings: SiteSettings) =>
   adminUpdate("/api/site-settings", token, { ...settings, id: 1 });
 

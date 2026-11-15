@@ -34,6 +34,7 @@ public class AuthorizationTests : IClassFixture<TestApiFactory>
             yield return new object[] { "PUT", $"/api/{table}/order" };
         }
         yield return new object[] { "PUT", "/api/site-settings" };
+        yield return new object[] { "GET", "/api/site-settings/full" };
         yield return new object[] { "GET", "/api/contact" };
         yield return new object[] { "PATCH", "/api/contact/999" };
         yield return new object[] { "DELETE", "/api/contact/999" };

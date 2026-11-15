@@ -26,7 +26,7 @@ public class SecureByDefaultTests : IClassFixture<TestApiFactory>
     /// <summary>The only endpoints anyone may call without signing in.</summary>
     private static readonly HashSet<string> ExpectedPublic = new(
         ContentTables.SelectMany(t => new[] { $"GET api/{t}", $"GET api/{t}/{{id:int}}" })
-            .Concat(new[] { "GET api/site-settings", "POST api/contact", "POST api/ask", "GET /health" }));
+            .Concat(new[] { "GET api/site-settings", "POST api/site-settings/email", "POST api/contact", "POST api/ask", "GET /health" }));
 
     [Fact]
     public void Only_the_expected_endpoints_are_public()

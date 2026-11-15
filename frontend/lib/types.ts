@@ -105,7 +105,9 @@ export type SiteSettings = {
   bio: string | null;
   location: string | null;
   availability: string | null;
+  /** Admin only: the public read always sends null (see hasEmail and the "Show email" button). */
   phone: string | null;
+  /** Admin only: the public read always sends null (see hasEmail and the "Show email" button). */
   email: string | null;
   linkedInUrl: string | null;
   githubUrl: string | null;
@@ -114,6 +116,8 @@ export type SiteSettings = {
   heroQuote: string | null;
   softSkills: string[];
   spokenLanguages: string[];
+  /** Set by the API: an email exists and can be revealed after the spam check. */
+  hasEmail: boolean;
 };
 
 export const emptySiteSettings: SiteSettings = {
@@ -132,4 +136,5 @@ export const emptySiteSettings: SiteSettings = {
   heroQuote: null,
   softSkills: [],
   spokenLanguages: [],
+  hasEmail: false,
 };

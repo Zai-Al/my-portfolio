@@ -9,6 +9,7 @@ using PortfolioApi.Data;
 using PortfolioApi.Health;
 using PortfolioApi.Services.Knowledge;
 using PortfolioApi.Services.Gemini;
+using PortfolioApi.Services.Turnstile;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,7 +86,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardLimit = 1;
 });
 
-// --- Rate limits: the contact form and the AI chat are the only public writes ---
+// --- Rate limits: the contact form, the AI chat and "Show email" are the only public writes ---
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -112,7 +113,21 @@ builder.Services.AddRateLimiter(options =>
                 {
                     PermitLimit = 100, Window = TimeSpan.FromDays(1), QueueLimit = 0, AutoReplenishment = true,
                 }))));
+    // "Show email": a person clicks it once or twice; 10 per 10 minutes is plenty.
+    options.AddPolicy("reveal", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+            }));
 });
+
+// --- Cloudflare Turnstile: proves a real browser before the email is given out ---
+builder.Services.Configure<TurnstileOptions>(builder.Configuration.GetSection(TurnstileOptions.Section));
+builder.Services.AddHttpClient<ITurnstileVerifier, TurnstileVerifier>(client => client.Timeout = TimeSpan.FromSeconds(10));
 
 // --- CORS: allow the deployed frontend to call this API ---
 var allowedOrigin = builder.Configuration["FrontendOrigin"] ?? "http://localhost:3000";

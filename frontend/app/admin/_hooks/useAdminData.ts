@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
 import { useCallback, useEffect, useState } from "react";
-import { adminGet, getMessages } from "@/lib/api/admin";
+import { adminGet, getFullSiteSettings, getMessages } from "@/lib/api/admin";
 import type {
   Certification,
   ContactMessage,
@@ -43,7 +43,10 @@ export function useAdminData(token: string, enabled = true) {
     load("/api/certifications", setCertifications);
     load("/api/education", setEducation);
     load("/api/guides", setGuides);
-    load<SiteSettings>("/api/site-settings", (s) => setSettings({ ...emptySiteSettings, ...s }));
+    // The full record (with email and phone): saving sends it all back.
+    getFullSiteSettings(token)
+      .then((s) => setSettings({ ...emptySiteSettings, ...s }))
+      .catch(() => {});
     getMessages(token)
       .then(setMessages)
       .catch(() => {});

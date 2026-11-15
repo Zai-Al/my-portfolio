@@ -1,5 +1,7 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PortfolioApi.Models;
 
 /// <summary>Single row (Id = 1) holding profile-level content.</summary>
@@ -20,4 +22,11 @@ public class SiteSettings
     public string? HeroQuote { get; set; }
     public List<string> SoftSkills { get; set; } = new();
     public List<string> SpokenLanguages { get; set; } = new();
+
+    /// <summary>
+    /// Not stored. The public read leaves Email and Phone out (spam bots scrape them) and sets
+    /// this instead, so the site knows whether to show the "Show email" button.
+    /// </summary>
+    [NotMapped]
+    public bool HasEmail { get; set; }
 }

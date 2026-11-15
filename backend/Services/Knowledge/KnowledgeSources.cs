@@ -50,8 +50,11 @@ public static class KnowledgeSources
                 List("Soft skills", s.SoftSkills),
                 List("Spoken languages", s.SpokenLanguages))));
             docs.Add(new(Contact, 1, "Contact details and CV", "#contact", Lines(
-                Field("Email", s.Email),
-                Field("Phone", s.Phone),
+                // No email or phone here: anything in the AI's knowledge can be asked for and
+                // scraped. Visitors get the email from the "Show email" button (spam-checked).
+                string.IsNullOrWhiteSpace(s.Email)
+                    ? null
+                    : "Email: not shared in this chat (to keep it away from spam bots). Click \"Show email\" in the Contact section, or use the contact form.",
                 Field("LinkedIn", s.LinkedInUrl),
                 Field("GitHub", s.GithubUrl),
                 Field("Availability", s.Availability),

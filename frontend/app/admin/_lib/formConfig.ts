@@ -8,7 +8,6 @@ import type {
   Certification,
   Education,
   Experience,
-  Game,
   Guide,
   Project,
   SiteSettings,
@@ -134,15 +133,6 @@ export const PROJECT_FIELDS: FieldConfig<Project>[] = [
   { key: "demoNotes", label: "Demo notes (e.g. demo logins)", type: "textarea" },
   { key: "year", label: "Year", type: "text" },
   { key: "featured", label: "Featured", type: "bool" },
-];
-
-export const GAME_FIELDS: FieldConfig<Game>[] = [
-  { key: "slug", label: "Slug (matches the game component)", type: "text" },
-  { key: "title", label: "Title", type: "text" },
-  { key: "icon", ...ICON_FIELD },
-  { key: "goal", label: "Goal (one line)", type: "text" },
-  { key: "details", label: "Details", type: "textarea" },
-  { key: "howToPlay", label: "How to play (one step per line)", type: "lines" },
 ];
 
 export const GUIDE_FIELDS: FieldConfig<Guide>[] = [

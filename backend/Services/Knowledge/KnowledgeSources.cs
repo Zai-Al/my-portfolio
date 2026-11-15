@@ -18,7 +18,7 @@ public static class KnowledgeSources
     public static readonly IReadOnlySet<Type> SourceEntityTypes = new HashSet<Type>
     {
         typeof(SiteSettings), typeof(Experience), typeof(Education), typeof(Certification),
-        typeof(SkillCategory), typeof(Skill), typeof(Project), typeof(Guide), typeof(Game),
+        typeof(SkillCategory), typeof(Skill), typeof(Project), typeof(Guide),
     };
 
     // Source types, also sent to the widget with each source link.
@@ -30,7 +30,6 @@ public static class KnowledgeSources
     public const string Skills = "skills";
     public const string Project = "project";
     public const string Guide = "guide";
-    public const string Game = "game";
 
     private record Document(string Type, int Id, string Title, string? Anchor, string? Body);
 
@@ -116,13 +115,6 @@ public static class KnowledgeSources
                 $"A: {g.Answer}",
                 List("Keywords", g.Keywords))));
 
-        foreach (var g in await db.Games.AsNoTracking().OrderBy(x => x.SortOrder).ToListAsync(ct))
-            docs.Add(new(Game, g.Id, g.Title, "/playground", Lines(
-                $"Game: {g.Title}",
-                Field("Goal", g.Goal),
-                Field("Details", g.Details),
-                List("How to play", g.HowToPlay))));
-
         var chunks = new List<KnowledgeChunk>();
         foreach (var d in docs)
         {
@@ -152,7 +144,6 @@ public static class KnowledgeSources
         Certification => "Certifications section",
         Skills => "Skills section",
         Project => $"Projects section → {c.Title} → View details",
-        Game => "Playground page",
         _ => null,
     };
 

@@ -7,7 +7,6 @@ import type {
   ContactMessage,
   Education,
   Experience,
-  Game,
   Guide,
   Project,
   SiteSettings,
@@ -27,7 +26,6 @@ export function useAdminData(token: string, enabled = true) {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
-  const [games, setGames] = useState<Game[]>([]);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [settings, setSettings] = useState<SiteSettings>(emptySiteSettings);
@@ -44,7 +42,6 @@ export function useAdminData(token: string, enabled = true) {
     load("/api/skills", setSkills);
     load("/api/certifications", setCertifications);
     load("/api/education", setEducation);
-    load("/api/games", setGames);
     load("/api/guides", setGuides);
     load<SiteSettings>("/api/site-settings", (s) => setSettings({ ...emptySiteSettings, ...s }));
     getMessages(token)
@@ -63,7 +60,6 @@ export function useAdminData(token: string, enabled = true) {
     skills,
     certifications,
     education,
-    games,
     guides,
     messages,
     settings,

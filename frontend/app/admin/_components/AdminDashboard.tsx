@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { refreshPublicPages } from "@/lib/revalidate";
-import type { Certification, Education, Experience, Game, Guide, Project } from "@/lib/types";
+import type { Certification, Education, Experience, Guide, Project } from "@/lib/types";
 import { useAdminData } from "../_hooks/useAdminData";
 import { useAdminPage } from "../_hooks/useAdminPage";
 import type { useServerWake } from "../_hooks/useServerWake";
@@ -14,7 +14,6 @@ import {
   CERTIFICATION_FIELDS,
   EDUCATION_FIELDS,
   EXPERIENCE_FIELDS,
-  GAME_FIELDS,
   GUIDE_FIELDS,
   PROJECT_FIELDS,
 } from "../_lib/formConfig";
@@ -162,16 +161,8 @@ export default function AdminDashboard({
                 />
               )}
 
-              {page === "extras" && (
+              {page === "chatbot" && (
                 <>
-                  <CrudSection<Game>
-                    {...crud}
-                    title="Games (Just for fun)"
-                    items={data.games}
-                    basePath="/api/games"
-                    fields={GAME_FIELDS}
-                    renderLabel={(g) => g.title}
-                  />
                   <CrudSection<Guide>
                     {...crud}
                     title="Chatbot guides"

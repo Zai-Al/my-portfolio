@@ -80,17 +80,6 @@ export type Project = {
   sortOrder: number;
 };
 
-export type Game = {
-  id: number;
-  slug: string;
-  title: string;
-  icon: string;
-  goal: string;
-  details: string;
-  howToPlay: string[];
-  sortOrder: number;
-};
-
 export type Guide = {
   id: number;
   title: string;

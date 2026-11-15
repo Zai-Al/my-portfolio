@@ -20,7 +20,7 @@ public class AuthorizationTests : IClassFixture<TestApiFactory>
     private static readonly string[] ContentTables =
     {
         "experiences", "projects", "skill-categories", "skills",
-        "certifications", "education", "games", "guides",
+        "certifications", "education", "guides",
     };
 
     /// <summary>Every admin-only endpoint: (method, path).</summary>

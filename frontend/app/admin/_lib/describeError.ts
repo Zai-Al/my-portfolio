@@ -19,7 +19,7 @@ export function describeError(e: unknown): string {
     case 429:
       return "Too many requests. Wait a minute and try again.";
     default:
-      // 500 is usually a database rule, e.g. a duplicate project/game slug.
+      // 500 is usually a database rule, e.g. a duplicate project slug.
       return `The server couldn't save this (error ${e.status}). Check for a duplicate slug or a missing required field.${detail}`;
   }
 }

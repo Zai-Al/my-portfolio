@@ -3,11 +3,11 @@
 import type { IconType } from "react-icons";
 import {
   FaBriefcase,
-  FaGamepad,
   FaGraduationCap,
   FaInbox,
   FaLayerGroup,
   FaProjectDiagram,
+  FaRobot,
   FaUser,
 } from "react-icons/fa";
 
@@ -18,7 +18,7 @@ export type AdminPageId =
   | "education"
   | "skills"
   | "projects"
-  | "extras"
+  | "chatbot"
   | "inbox";
 
 export const ADMIN_PAGES: { id: AdminPageId; label: string; hint: string; Icon: IconType }[] = [
@@ -53,10 +53,10 @@ export const ADMIN_PAGES: { id: AdminPageId; label: string; hint: string; Icon: 
     Icon: FaProjectDiagram,
   },
   {
-    id: "extras",
-    label: "Games & Chatbot",
-    hint: "Just-for-fun game cards, the chatbot's guide answers, and its AI knowledge.",
-    Icon: FaGamepad,
+    id: "chatbot",
+    label: "AI Chatbot",
+    hint: "The chatbot's guide answers and its AI knowledge.",
+    Icon: FaRobot,
   },
   { id: "inbox", label: "Inbox", hint: "Messages sent through the contact form.", Icon: FaInbox },
 ];

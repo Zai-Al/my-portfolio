@@ -50,7 +50,7 @@ Turn off public sign-ups in Supabase as well.
 
 ## Endpoints
 
-Content types: `experiences`, `education`, `certifications`, `skill-categories`, `skills`, `projects`, `games`, `guides`.
+Content types: `experiences`, `education`, `certifications`, `skill-categories`, `skills`, `projects`, `guides`.
 
 | Method | Path | Access | Purpose |
 |---|---|---|---|

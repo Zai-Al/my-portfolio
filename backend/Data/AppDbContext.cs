@@ -20,7 +20,6 @@ public class AppDbContext : DbContext
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<Certification> Certifications => Set<Certification>();
     public DbSet<Education> Education => Set<Education>();
-    public DbSet<Game> Games => Set<Game>();
     public DbSet<Guide> Guides => Set<Guide>();
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
     public DbSet<SiteSettings> SiteSettings => Set<SiteSettings>();
@@ -29,7 +28,6 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Project>().HasIndex(p => p.Slug).IsUnique();
-        modelBuilder.Entity<Game>().HasIndex(g => g.Slug).IsUnique();
 
         modelBuilder.Entity<Skill>()
             .HasOne(s => s.SkillCategory)

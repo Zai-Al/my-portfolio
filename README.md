@@ -27,7 +27,7 @@ Every piece of content on the site (experience, education, certifications, skill
 - **Content from the database.** Nothing about me is hard-coded in the frontend. A background indexer keeps the AI's knowledge in step: every admin save queues a re-embed of only the text that changed.
 - **Private admin dashboard.** Password plus authenticator-app code (Supabase Auth, TOTP). The API itself checks the second factor, so a stolen password alone can't change anything.
 - **Interactive extras.** A working terminal (`help`, `whoami`, `skills`, `projects`, `git log --stats`, …), live GitHub stats, and a Playground page with four small browser games.
-- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, and 192 automated API tests in CI.
+- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, and 203 automated API tests in CI.
 
 ## Architecture
 
@@ -93,7 +93,7 @@ flowchart LR
 **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
 **Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth and Storage, Google Gemini
-**Tooling:** xUnit + `WebApplicationFactory` (192 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
+**Tooling:** xUnit + `WebApplicationFactory` (203 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 
 ## Repository layout
@@ -114,7 +114,17 @@ Every push and pull request runs:
 - **Backend:** build, the full test suite, and a Docker build of the production image
 - **Frontend:** ESLint, a Prettier check, and a type-checked production build
 
-`main` is protected and only moves forward to commits that passed CI.
+`main` is protected and only moves forward to commits that passed CI. GitHub's CodeQL scans the code for security issues, and Dependabot keeps dependencies up to date.
+
+## Versioning
+
+Releases follow [Semantic Versioning](https://semver.org) (`vMAJOR.MINOR.PATCH`). Each release to `main` is tagged, and its notes are on the [Releases](https://github.com/Zai-Al/my-portfolio/releases) page.
+
+| Part | Goes up for | Example |
+|---|---|---|
+| **MAJOR** | A redesign, or a change to the API or database that needs a migration | `v2.0.0` |
+| **MINOR** | A new feature (`feat:` commits) | `v1.1.0` |
+| **PATCH** | Fixes, dependency updates and small changes (`fix:`, `chore:`, `style:`) | `v1.0.1` |
 
 ## License
 

@@ -8,16 +8,7 @@
 // file  = one URL, with an upload button and preview (CV, photo, certificate image)
 // files = list of URLs, with multi-upload, thumbnails and ordering (screenshots)
 export type FieldType =
-  | "text"
-  | "textarea"
-  | "number"
-  | "list"
-  | "lines"
-  | "bool"
-  | "select"
-  | "icon"
-  | "file"
-  | "files";
+  "text" | "textarea" | "number" | "list" | "lines" | "bool" | "select" | "icon" | "file" | "files";
 export type SelectOption = { value: number; label: string };
 export type FieldConfig<T> = {
   key: keyof T;

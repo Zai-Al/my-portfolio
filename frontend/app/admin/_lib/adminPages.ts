@@ -13,13 +13,7 @@ import {
 
 // --- Side menu: one page per group of related content ---
 export type AdminPageId =
-  | "profile"
-  | "experience"
-  | "education"
-  | "skills"
-  | "projects"
-  | "chatbot"
-  | "inbox";
+  "profile" | "experience" | "education" | "skills" | "projects" | "chatbot" | "inbox";
 
 export const ADMIN_PAGES: { id: AdminPageId; label: string; hint: string; Icon: IconType }[] = [
   {

@@ -13,7 +13,7 @@ import {
 
 /**
  * The state of one list's search: open or closed, what was typed and picked, and the
- * matching items. Render it with <SearchToggle> and <SearchPanel>. Without a config the
+ * matching items. Render it with <SearchToggle>, <SearchPanel> and <FilterChips>. Without a config the
  * list is returned unchanged and nothing is shown.
  */
 export function useListSearch<T>(items: T[], config?: SearchConfig<T>) {
@@ -26,7 +26,8 @@ export function useListSearch<T>(items: T[], config?: SearchConfig<T>) {
   const searching = !!config && isSearching(config, state);
   const filtered = config ? applySearch(items, config, state) : items;
 
-  const clear = () => setState(emptySearch);
+  /** Empties the search bar (text and dates); the chips above the list keep their choice. */
+  const clear = () => setState((s) => ({ ...emptySearch, field: s.field, chips: s.chips }));
   const close = () => {
     clear();
     setOpen(false);
@@ -62,6 +63,7 @@ export function useListSearch<T>(items: T[], config?: SearchConfig<T>) {
     /** True while the list is narrowed down. */
     searching,
     filtered,
+    items,
     total: items.length,
   };
 }

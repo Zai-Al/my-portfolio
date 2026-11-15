@@ -16,7 +16,7 @@ import {
 } from "../_lib/fields";
 import { useListSearch } from "../_hooks/useListSearch";
 import type { SearchConfig } from "../_lib/search";
-import { SearchPanel, SearchToggle } from "./SearchPanel";
+import { FilterChips, SearchPanel, SearchToggle } from "./SearchPanel";
 import EditPanel from "./EditPanel";
 import FieldInput from "./FieldInput";
 
@@ -214,6 +214,7 @@ export default function CrudSection<T extends Ordered>({
           </button>
         </div>
       </div>
+      <FilterChips search={listSearch} />
       <SearchPanel search={listSearch} />
       {searching && (
         <p className="mt-2 font-mono text-xs text-gray-500">

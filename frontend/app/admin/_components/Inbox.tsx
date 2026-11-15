@@ -8,7 +8,7 @@ import type { ContactMessage } from "@/lib/types";
 import { formatDateTime } from "@/lib/format";
 import { useListSearch } from "../_hooks/useListSearch";
 import { INBOX_SEARCH } from "../_lib/searchConfig";
-import { SearchPanel, SearchToggle } from "./SearchPanel";
+import { FilterChips, SearchPanel, SearchToggle } from "./SearchPanel";
 
 /** Contact-form messages: search, filter, sort, mark read/unread, delete. Dates are day/month/year. */
 export default function Inbox({
@@ -24,7 +24,7 @@ export default function Inbox({
 }) {
   const [confirm, confirmDialog] = useConfirm();
 
-  // Separate boxes for sender, subject and message, plus read state, sort and dates.
+  // Search by name or subject, a received-date range, read-state chips and a sort order.
   const search = useListSearch(messages, INBOX_SEARCH);
   const { filtered, state } = search;
   const time = (m: ContactMessage) => new Date(m.receivedAt).getTime();
@@ -72,7 +72,9 @@ export default function Inbox({
     <section>
       {messages.length > 0 && (
         <>
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            {/* Read-state and sort chips, styled like the Skills filter. */}
+            <FilterChips search={search} className="" />
             <SearchToggle search={search} />
           </div>
           <SearchPanel search={search} />

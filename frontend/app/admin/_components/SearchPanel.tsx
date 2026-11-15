@@ -4,22 +4,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { FaSearch } from "react-icons/fa";
-import DatePicker from "@/components/ui/DatePicker";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
+import DateRangePicker from "@/components/ui/DateRangePicker";
 import type { ListSearch } from "../_hooks/useListSearch";
-import { chipValue } from "../_lib/search";
+import { chipCount, chipValue, hasSearchInput, selectedField } from "../_lib/search";
 
-const chip = (active: boolean) =>
+/** The same chip style as the Skills category filter. */
+export const chipClass = (active: boolean) =>
   `rounded-full border px-3 py-1 font-mono text-xs transition-colors ${
     active
       ? "border-accent bg-accent/10 text-accent"
       : "border-border text-gray-400 hover:border-gray-500 hover:text-gray-200"
   }`;
 
-/** The "search" button for a section header. Opens and closes the panel. */
+/** The "search" button for a section header. Opens and closes the search bar. */
 export function SearchToggle<T>({ search }: { search: ListSearch<T> }) {
-  const { config, open, searching, anchorRef } = search;
+  const { config, open, anchorRef } = search;
   if (!config) return null;
+  const filled = hasSearchInput(search.state);
   return (
     <div ref={anchorRef} data-admin-search>
       <button
@@ -28,7 +30,7 @@ export function SearchToggle<T>({ search }: { search: ListSearch<T> }) {
         aria-label={open ? `Close the ${config.label} search` : `Search ${config.label}`}
         title={open ? "Close search (Esc)" : "Search (/)"}
         className={`flex items-center gap-1.5 rounded border px-3 py-1 font-mono text-xs transition-colors ${
-          open || searching
+          open || filled
             ? "border-accent bg-accent/10 text-accent"
             : "border-border text-gray-400 hover:border-gray-500 hover:text-gray-200"
         }`}
@@ -40,35 +42,60 @@ export function SearchToggle<T>({ search }: { search: ListSearch<T> }) {
   );
 }
 
-/** The search boxes, chips and dates, shown under the header while open. */
+/** Filter chips above the list (always visible), with counts, like the Skills filter. */
+export function FilterChips<T>({
+  search,
+  className = "mt-3",
+}: {
+  search: ListSearch<T>;
+  className?: string;
+}) {
+  const { config, state, setState, items } = search;
+  const groups = config?.chips ?? [];
+  if (!config || groups.length === 0 || items.length === 0) return null;
+  return (
+    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+      {groups.map((c, gi) => (
+        <div
+          key={c.key}
+          role="group"
+          aria-label={`Filter ${config.label}`}
+          className={`flex flex-wrap gap-2 ${gi > 0 ? "border-l border-border pl-2" : ""}`}
+        >
+          {c.options.map((o) => {
+            const on = chipValue(c, state) === o.value;
+            return (
+              <button
+                key={o.value}
+                onClick={() => setState((s) => ({ ...s, chips: { ...s.chips, [c.key]: o.value } }))}
+                aria-pressed={on}
+                className={chipClass(on)}
+              >
+                {o.label}
+                {c.test && ` (${chipCount(items, c, o.value)})`}
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** The search bar, shown under the header while open: [by … ▾] [search…] [📅 dates] 3 of 12 [clear] */
 export function SearchPanel<T>({ search }: { search: ListSearch<T> }) {
   const { config, open, state, setState, filtered, total } = search;
   const reduceMotion = useReducedMotion();
-  const firstBox = useRef<HTMLInputElement>(null);
+  const box = useRef<HTMLInputElement>(null);
   // Clipped while sliding open/closed, visible once open (so the calendar popup isn't cut off).
   const [settled, setSettled] = useState(false);
 
-  // Focus the first box when the panel opens.
   useEffect(() => {
-    if (open) firstBox.current?.focus();
+    if (open) box.current?.focus();
   }, [open]);
 
   if (!config) return null;
-  const single = config.fields.length === 1;
-  const hasInput =
-    Object.values(state.text).some((v) => v.trim()) ||
-    Object.keys(state.chips).length > 0 ||
-    !!state.from ||
-    !!state.to;
-
-  const setText = (key: string, v: string) =>
-    setState((s) => ({ ...s, text: { ...s.text, [key]: v } }));
-  const onEsc = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      e.stopPropagation();
-      search.close();
-    }
-  };
+  const field = selectedField(config, state);
 
   return (
     <AnimatePresence initial={false}>
@@ -83,138 +110,75 @@ export function SearchPanel<T>({ search }: { search: ListSearch<T> }) {
           onAnimationComplete={() => setSettled(open)}
         >
           <div
-            onKeyDown={onEsc}
-            className="mt-3 space-y-3 rounded border border-border bg-panel/40 p-3"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.stopPropagation();
+                search.close();
+              }
+            }}
+            className="mt-3 flex flex-wrap items-center gap-2 rounded border border-border bg-panel/40 p-2"
           >
-            {/* Text boxes: one for most lists, one per field for the inbox. */}
-            <div className={single ? "flex items-center gap-2" : "grid gap-2 sm:grid-cols-3"}>
-              {config.fields.map((f, i) => (
-                <label
-                  key={f.key}
-                  className={single ? "flex min-w-0 flex-1 items-center gap-2" : "block"}
+            {config.fields.length > 1 && (
+              <label className="relative">
+                <span className="sr-only">Search by</span>
+                <select
+                  value={field.key}
+                  onChange={(e) => {
+                    setState((s) => ({ ...s, field: e.target.value }));
+                    box.current?.focus();
+                  }}
+                  className="appearance-none rounded border border-border bg-void py-1 pl-2.5 pr-7 font-mono text-xs text-gray-300 outline-none [color-scheme:dark] hover:border-gray-500 focus:border-accent/60"
                 >
-                  {single ? (
-                    <FaSearch aria-hidden className="h-3.5 w-3.5 shrink-0 text-gray-500" />
-                  ) : (
-                    <span className="mb-1 block font-mono text-xs text-gray-500">{f.label}</span>
-                  )}
-                  <input
-                    ref={i === 0 ? firstBox : undefined}
-                    type="text"
-                    value={state.text[f.key] ?? ""}
-                    onChange={(e) => setText(f.key, e.target.value)}
-                    placeholder={
-                      single ? `search by ${f.label.toLowerCase()}...` : "type to search..."
-                    }
-                    aria-label={
-                      single ? `Search ${config.label} by ${f.label.toLowerCase()}` : f.label
-                    }
-                    className={
-                      single
-                        ? "min-w-0 flex-1 bg-transparent font-mono text-sm text-gray-200 outline-none placeholder:text-gray-600"
-                        : "w-full rounded border border-border bg-void px-2 py-1 font-mono text-xs text-gray-200 outline-none placeholder:text-gray-600 focus:border-accent/60"
-                    }
-                  />
-                </label>
-              ))}
-              {single && (
-                <Summary
-                  shown={filtered.length}
-                  total={total}
-                  canClear={hasInput}
-                  onClear={search.clear}
+                  {config.fields.map((f) => (
+                    <option key={f.key} value={f.key}>
+                      by {f.label}
+                    </option>
+                  ))}
+                </select>
+                <FaChevronDown
+                  aria-hidden
+                  className="pointer-events-none absolute right-2 top-1/2 h-2.5 w-2.5 -translate-y-1/2 text-gray-500"
                 />
-              )}
-            </div>
-
-            {config.chips?.map((c) => (
-              <div
-                key={c.key}
-                role="group"
-                aria-label={c.label}
-                className="flex flex-wrap items-center gap-2"
-              >
-                <span className="font-mono text-xs text-gray-500">{c.label}:</span>
-                {c.options.map((o) => (
-                  <button
-                    key={o.value}
-                    onClick={() =>
-                      setState((s) => ({ ...s, chips: { ...s.chips, [c.key]: o.value } }))
-                    }
-                    aria-pressed={chipValue(c, state) === o.value}
-                    className={chip(chipValue(c, state) === o.value)}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            ))}
-
-            {config.dateRange && (
-              <div
-                role="group"
-                aria-label={config.dateRange.label}
-                className="flex flex-wrap items-center gap-2"
-              >
-                <span className="font-mono text-xs text-gray-500">{config.dateRange.label}:</span>
-                <span className="font-mono text-xs text-gray-500">from</span>
-                <DatePicker
-                  label={`${config.dateRange.label} from`}
-                  value={state.from}
-                  max={state.to || undefined}
-                  onChange={(from) => setState((s) => ({ ...s, from }))}
-                />
-                <span className="font-mono text-xs text-gray-500">to</span>
-                <DatePicker
-                  label={`${config.dateRange.label} to`}
-                  value={state.to}
-                  min={state.from || undefined}
-                  onChange={(to) => setState((s) => ({ ...s, to }))}
-                />
-              </div>
+              </label>
             )}
 
-            {!single && (
-              <div className="flex justify-end">
-                <Summary
-                  shown={filtered.length}
-                  total={total}
-                  canClear={hasInput}
-                  onClear={search.clear}
-                />
-              </div>
+            <label className="flex min-w-[10rem] flex-1 items-center gap-2 px-1">
+              <FaSearch aria-hidden className="h-3.5 w-3.5 shrink-0 text-gray-500" />
+              <input
+                ref={box}
+                type="text"
+                value={state.query}
+                onChange={(e) => setState((s) => ({ ...s, query: e.target.value }))}
+                placeholder={`search by ${field.label}...`}
+                aria-label={`Search ${config.label} by ${field.label}`}
+                className="min-w-0 flex-1 bg-transparent font-mono text-sm text-gray-200 outline-none placeholder:text-gray-600"
+              />
+            </label>
+
+            {config.date && (
+              <DateRangePicker
+                label="Received"
+                from={state.from}
+                to={state.to}
+                onChange={(from, to) => setState((s) => ({ ...s, from, to }))}
+              />
             )}
+
+            <span className="flex shrink-0 items-center gap-3 pl-1 font-mono text-xs">
+              <span aria-live="polite" className="text-gray-500">
+                {filtered.length} of {total}
+              </span>
+              <button
+                onClick={search.clear}
+                disabled={!hasSearchInput(state)}
+                className="rounded border border-border px-2 py-0.5 text-gray-300 hover:bg-white/5 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+              >
+                clear
+              </button>
+            </span>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-/** "3 of 12" and the clear button. */
-function Summary({
-  shown,
-  total,
-  canClear,
-  onClear,
-}: {
-  shown: number;
-  total: number;
-  canClear: boolean;
-  onClear: () => void;
-}) {
-  return (
-    <span className="flex shrink-0 items-center gap-3 font-mono text-xs">
-      <span aria-live="polite" className="text-gray-500">
-        {shown} of {total}
-      </span>
-      <button
-        onClick={onClear}
-        disabled={!canClear}
-        className="rounded border border-border px-2 py-0.5 text-gray-300 hover:bg-white/5 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
-      >
-        clear
-      </button>
-    </span>
   );
 }

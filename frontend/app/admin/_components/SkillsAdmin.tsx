@@ -7,6 +7,7 @@ import type { Skill, SkillCategory } from "@/lib/types";
 import { CATEGORY_FIELDS, skillFields } from "../_lib/formConfig";
 import { SKILL_SEARCH } from "../_lib/searchConfig";
 import CrudSection from "./CrudSection";
+import { chipClass } from "./SearchPanel";
 
 // --- Skills page: categories, plus skills filtered by category ---
 export default function SkillsAdmin({
@@ -46,12 +47,7 @@ export default function SkillsAdmin({
   const categoryOptions = sortedCategories.map((c) => ({ value: c.id, label: c.name }));
   const defaultCategory = activeFilter === "all" ? sortedCategories[0]?.id : activeFilter;
 
-  const chip = (active: boolean) =>
-    `rounded-full border px-3 py-1 font-mono text-xs transition-colors ${
-      active
-        ? "border-accent bg-accent/10 text-accent"
-        : "border-border text-gray-400 hover:border-gray-500 hover:text-gray-200"
-    }`;
+  const chip = chipClass;
 
   return (
     <>

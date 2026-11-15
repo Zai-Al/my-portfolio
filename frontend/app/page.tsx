@@ -41,7 +41,9 @@ export default async function Home() {
 
   return (
     <>
-      <main className="relative">
+      {/* md–xl: the side menu (fixed, left) would cover the centred sections' left edge,
+          so make room for it; from xl the margins are wide enough on their own. */}
+      <main className="relative md:pl-20 xl:pl-0">
         <AuroraBackground />
         <CursorGlow />
         {/* First thing a keyboard user reaches: jump past the section menu. */}

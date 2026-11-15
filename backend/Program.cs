@@ -122,6 +122,14 @@ builder.Services.AddScoped<KnowledgeIndexer>();
 builder.Services.AddScoped<KnowledgeRetriever>();
 builder.Services.AddHostedService<KnowledgeIndexWorker>();
 
+// --- HSTS: browsers only talk to the API over HTTPS (2 years). Added to HTTPS responses
+// outside Development; localhost is never included. ---
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(730);
+    options.IncludeSubDomains = true;
+});
+
 // --- Errors: unhandled exceptions become a plain ProblemDetails 500 (no stack traces) ---
 builder.Services.AddProblemDetails();
 
@@ -134,9 +142,27 @@ builder.Services.AddControllers(options =>
 
 var app = builder.Build();
 
+// Security headers on every response. The API only returns JSON, so nothing may frame it,
+// guess its content type or load anything from it. Set when the response starts, so error
+// responses (which clear headers) get them too.
+app.Use((context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        var headers = context.Response.Headers;
+        headers.XContentTypeOptions = "nosniff";
+        headers.XFrameOptions = "DENY";
+        headers["Referrer-Policy"] = "no-referrer";
+        headers.ContentSecurityPolicy = "default-src 'none'; frame-ancestors 'none'";
+        return Task.CompletedTask;
+    });
+    return next();
+});
+
 // In Development the detailed error page still shows; elsewhere visitors get a short ProblemDetails.
 if (!app.Environment.IsDevelopment()) app.UseExceptionHandler();
-app.UseForwardedHeaders();
+app.UseForwardedHeaders(); // before anything that checks HTTPS or the client IP (HSTS, rate limits)
+if (!app.Environment.IsDevelopment()) app.UseHsts();
 app.UseCors();
 app.UseRateLimiter();
 app.UseAuthentication();

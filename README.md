@@ -87,6 +87,7 @@ flowchart LR
 
 - Secure by default: every API endpoint is admin-only unless explicitly marked public, and a test pins down the exact public list
 - Two-factor admin login, checked by the API (`aal2`), sign-ups disabled
+- Admin is logged out after 15 minutes without activity, also when the browser was closed and reopened; the login is ended in Supabase too, so its refresh token stops working
 - Live updates use a private Realtime channel: anyone may listen, only the admin with `aal2` may send (RLS on `realtime.messages`); public channels are turned off
 - Contact details kept from scrapers: the phone number is never public, and the email is not in the page, the public API, the structured data or the AI guide's knowledge. The "Show email" button reveals it only after a Cloudflare Turnstile check, verified by the API
 - Per-IP rate limits: contact form 5 per 10 minutes; "Show email" 10 per 10 minutes; AI guide 10 per minute and 100 per day

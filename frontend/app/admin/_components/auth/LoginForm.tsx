@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { markActive } from "../../_hooks/useIdleLogout";
 import { AuthCard, authInputClass } from "./AuthCard";
 
 /** `notice` explains why you were sent back here (e.g. the session ended). */
@@ -17,6 +18,9 @@ export default function LoginForm({ notice }: { notice?: string }) {
     e.preventDefault();
     setError("");
     setBusy(true);
+    // Start the idle clock before signing in: the new session must not be judged by the
+    // last-activity time of an earlier login (that one would count as idle).
+    markActive();
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (signInError) setError(signInError.message);

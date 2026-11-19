@@ -17,9 +17,10 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        mono: ["JetBrains Mono", "IBM Plex Mono", "monospace"],
-        body: ["Inter", "sans-serif"],
+        // IBM Plex Sans Arabic fills in the Arabic letters on /ar (the others have none).
+        display: ["Space Grotesk", "IBM Plex Sans Arabic", "sans-serif"],
+        mono: ["JetBrains Mono", "IBM Plex Mono", "IBM Plex Sans Arabic", "monospace"],
+        body: ["Inter", "IBM Plex Sans Arabic", "sans-serif"],
       },
     },
   },

@@ -14,4 +14,10 @@ public class Education : IOrderedEntity
     public List<string> Awards { get; set; } = new();
     public string Icon { get; set; } = "FaGraduationCap";
     public int SortOrder { get; set; }
+
+    // Arabic versions (shown on /ar; empty = fall back to the English field).
+    public string? InstitutionAr { get; set; }
+    public string? DegreeAr { get; set; }
+    public string? LocationAr { get; set; }
+    public List<string> AwardsAr { get; set; } = new();
 }

@@ -8,6 +8,7 @@ import type { SiteSettings } from "@/lib/types";
 import { parseField } from "../_lib/fields";
 import { SETTINGS_FIELDS } from "../_lib/formConfig";
 import FieldInput from "./FieldInput";
+import TranslateButton from "./TranslateButton";
 
 /** The single SiteSettings row: hero, about, contact links, CV and photo. */
 export default function ProfileForm({
@@ -58,13 +59,24 @@ export default function ProfileForm({
           />
         ))}
       </div>
-      <button
-        onClick={save}
-        disabled={saving}
-        className="mt-4 rounded border border-accent px-4 py-1.5 font-mono text-sm text-accent hover:bg-accent/10 disabled:opacity-50"
-      >
-        {saving ? "saving..." : saved ? "saved" : "save"}
-      </button>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="rounded border border-accent px-4 py-1.5 font-mono text-sm text-accent hover:bg-accent/10 disabled:opacity-50"
+        >
+          {saving ? "saving..." : saved ? "saved" : "save"}
+        </button>
+        <TranslateButton
+          token={token}
+          fields={SETTINGS_FIELDS}
+          values={settings}
+          onTranslated={(patch) => {
+            onChange((s) => ({ ...s, ...patch }));
+            setSaved(false);
+          }}
+        />
+      </div>
     </section>
   );
 }

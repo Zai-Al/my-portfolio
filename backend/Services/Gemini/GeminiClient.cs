@@ -72,6 +72,43 @@ public class GeminiClient : IGeminiClient
         return new(outcome, Empty());
     }
 
+    public async Task<GeminiText> GenerateJsonAsync(string systemInstruction, string userText,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_options.ApiKey)) return new(GeminiOutcome.NotConfigured, null);
+
+        var json = JsonSerializer.Serialize(new
+        {
+            systemInstruction = new { parts = new[] { new { text = systemInstruction } } },
+            contents = new[] { new { role = "user", parts = new[] { new { text = userText } } } },
+            // JSON mode: the reply is a JSON document, nothing else. Room for a long project write-up.
+            generationConfig = new { temperature = 0.2, maxOutputTokens = 8192, responseMimeType = "application/json" },
+        });
+
+        var outcome = GeminiOutcome.Failed;
+        foreach (var model in new[] { _options.Model, _options.FallbackModel }.Distinct())
+        {
+            try
+            {
+                using var request = NewRequest($"{BaseUrl}/{model}:generateContent", json);
+                using var response = await _http.SendAsync(request, cancellationToken);
+                if (response.IsSuccessStatusCode)
+                    return new(GeminiOutcome.Ok, ExtractStreamText(await response.Content.ReadAsStringAsync(cancellationToken)));
+
+                _logger.LogWarning("Gemini model {Model} returned {Status}", model, (int)response.StatusCode);
+                outcome = ToOutcome(response.StatusCode);
+            }
+            catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogWarning(ex, "Gemini model {Model} call failed", model);
+                outcome = GeminiOutcome.Failed;
+            }
+            // Only busy/rate-limited is worth retrying on the other model.
+            if (outcome == GeminiOutcome.Failed) break;
+        }
+        return new(outcome, null);
+    }
+
     public async Task<GeminiEmbeddings> EmbedAsync(IReadOnlyList<string> texts, EmbeddingTask task,
         CancellationToken cancellationToken = default)
     {
@@ -163,7 +200,10 @@ public class GeminiClient : IGeminiClient
         }
     }
 
-    /// <summary>Text from one streamed event: candidates[0].content.parts[*].text (thought parts skipped).</summary>
+    /// <summary>
+    /// Text from a reply (one streamed event, or a whole generateContent answer: same shape):
+    /// candidates[0].content.parts[*].text (thought parts skipped).
+    /// </summary>
     internal static string? ExtractStreamText(string json)
     {
         using var doc = JsonDocument.Parse(json);

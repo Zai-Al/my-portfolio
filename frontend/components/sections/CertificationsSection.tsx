@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/ui/SectionHeading";
 import DynamicIcon from "@/components/ui/DynamicIcon";
 import Modal from "@/components/ui/Modal";
@@ -18,14 +19,13 @@ export default function CertificationsSection({
 }) {
   const [active, setActive] = useState<Certification | null>(null);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations();
 
   return (
     <>
-      <SectionHeading>Certifications</SectionHeading>
+      <SectionHeading>{t("certifications.heading")}</SectionHeading>
       {certifications.length === 0 && (
-        <p className="mt-8 font-mono text-sm text-gray-400">
-          (connect the backend to populate this from the database)
-        </p>
+        <p className="mt-8 font-mono text-sm text-gray-400">{t("common.noContent")}</p>
       )}
       {certifications.length > 0 && (
         <motion.div
@@ -42,7 +42,7 @@ export default function CertificationsSection({
               variants={revealItem}
               whileHover={reduceMotion ? undefined : cardHover}
               whileTap={reduceMotion ? undefined : cardTap}
-              className="group flex h-full flex-col items-start rounded-xl border border-border bg-panel/40 p-5 text-left transition-colors hover:border-accent/50 hover:shadow-[0_12px_30px_-10px_rgba(0,255,157,0.25)]"
+              className="group flex h-full flex-col items-start rounded-xl border border-border bg-panel/40 p-5 text-start transition-colors hover:border-accent/50 hover:shadow-[0_12px_30px_-10px_rgba(0,255,157,0.25)]"
             >
               <DynamicIcon
                 name={cert.icon}
@@ -54,7 +54,7 @@ export default function CertificationsSection({
               </p>
               <div className="flex-1" />
               <span className="mt-6 w-full rounded border border-accent px-5 py-2 text-center font-mono text-sm text-accent transition-colors group-hover:bg-accent/10">
-                view credential
+                {t("certifications.viewCredential")}
               </span>
             </motion.button>
           ))}
@@ -71,13 +71,13 @@ export default function CertificationsSection({
           <div className="space-y-4">
             <SafeImage
               src={active.imageUrl}
-              alt={`${active.name} certificate`}
+              alt={t("certifications.imageAlt", { name: active.name })}
               className="w-full rounded-lg border border-border"
-              fallbackText="Certificate image unavailable"
+              fallbackText={t("certifications.imageUnavailable")}
             />
             {active.credentialId && (
               <p className="font-mono text-xs text-gray-400">
-                Credential ID: {active.credentialId}
+                {t("certifications.credentialId", { id: active.credentialId })}
               </p>
             )}
             {active.credentialUrl ? (
@@ -87,10 +87,10 @@ export default function CertificationsSection({
                 rel="noopener noreferrer"
                 className="block w-full rounded border border-accent px-5 py-2 text-center font-mono text-sm text-accent transition-colors hover:bg-accent/10"
               >
-                verify credential →
+                {t("certifications.verify")}
               </a>
             ) : (
-              <p className="font-mono text-xs text-gray-400">No public verification link yet.</p>
+              <p className="font-mono text-xs text-gray-400">{t("certifications.noVerify")}</p>
             )}
           </div>
         )}

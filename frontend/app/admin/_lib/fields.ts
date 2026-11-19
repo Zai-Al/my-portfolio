@@ -19,6 +19,8 @@ export type FieldConfig<T> = {
   folder?: (values: Partial<T>) => string;
   /** file/files: allowed file types for the picker, e.g. "application/pdf". */
   accept?: string;
+  /** An Arabic copy of a text field (shown on /ar): typed right to left. */
+  arabic?: boolean;
 };
 
 export function emptyValue(type: FieldType, options?: SelectOption[]): unknown {
@@ -43,7 +45,7 @@ export function parseField(type: FieldType, raw: string | boolean): unknown {
   if (type === "number" || type === "select") return Number.isNaN(Number(text)) ? 0 : Number(text);
   if (type === "list")
     return text
-      .split(",")
+      .split(/[,،]/) // the Arabic keyboard's comma counts too
       .map((s) => s.trim())
       .filter(Boolean);
   if (type === "lines" || type === "files")

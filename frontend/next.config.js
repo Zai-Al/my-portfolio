@@ -1,5 +1,8 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
+// next-intl: loads the UI strings for each language (i18n/request.ts).
+const withNextIntl = require("next-intl/plugin")();
+
 const isDev = process.env.NODE_ENV !== "production";
 
 // Only the origin part of a URL (scheme + host + port), or null if unset/invalid.
@@ -92,4 +95,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

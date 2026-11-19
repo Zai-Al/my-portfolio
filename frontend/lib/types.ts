@@ -16,6 +16,13 @@ export type Experience = {
   icon: string; // react-icons component name
   proofImageUrl: string | null;
   sortOrder: number;
+  // Arabic versions, shown on /ar (null / empty = the English field is shown).
+  companyAr: string | null;
+  roleAr: string | null;
+  departmentAr: string | null;
+  locationAr: string | null;
+  summaryAr: string | null;
+  bulletsAr: string[];
 };
 
 export type Education = {
@@ -28,6 +35,10 @@ export type Education = {
   awards: string[];
   icon: string;
   sortOrder: number;
+  institutionAr: string | null;
+  degreeAr: string | null;
+  locationAr: string | null;
+  awardsAr: string[];
 };
 
 export type Certification = {
@@ -41,6 +52,8 @@ export type Certification = {
   imageUrl: string | null;
   icon: string;
   sortOrder: number;
+  nameAr: string | null;
+  issuerAr: string | null;
 };
 
 export type Skill = {
@@ -50,6 +63,8 @@ export type Skill = {
   icon: string;
   includes: string[];
   sortOrder: number;
+  nameAr: string | null;
+  includesAr: string[];
 };
 
 export type SkillCategory = {
@@ -58,6 +73,7 @@ export type SkillCategory = {
   icon: string;
   sortOrder: number;
   skills: Skill[];
+  nameAr: string | null;
 };
 
 export type Project = {
@@ -78,6 +94,13 @@ export type Project = {
   year: string | null;
   featured: boolean;
   sortOrder: number;
+  titleAr: string | null;
+  summaryAr: string | null;
+  descriptionAr: string | null;
+  contextAr: string | null;
+  myRoleAr: string | null;
+  highlightsAr: string[];
+  demoNotesAr: string | null;
 };
 
 export type Guide = {
@@ -86,6 +109,7 @@ export type Guide = {
   answer: string;
   keywords: string[];
   sortOrder: number;
+  titleAr: string | null;
 };
 
 export type ContactMessage = {
@@ -116,6 +140,15 @@ export type SiteSettings = {
   heroQuote: string | null;
   softSkills: string[];
   spokenLanguages: string[];
+  // Arabic versions, shown on /ar (null / empty = the English field is shown).
+  fullNameAr: string | null;
+  headlineAr: string | null;
+  bioAr: string | null;
+  locationAr: string | null;
+  availabilityAr: string | null;
+  heroQuoteAr: string | null;
+  softSkillsAr: string[];
+  spokenLanguagesAr: string[];
   /** Set by the API: an email exists and can be revealed after the spam check. */
   hasEmail: boolean;
 };
@@ -136,5 +169,13 @@ export const emptySiteSettings: SiteSettings = {
   heroQuote: null,
   softSkills: [],
   spokenLanguages: [],
+  fullNameAr: null,
+  headlineAr: null,
+  bioAr: null,
+  locationAr: null,
+  availabilityAr: null,
+  heroQuoteAr: null,
+  softSkillsAr: [],
+  spokenLanguagesAr: [],
   hasEmail: false,
 };

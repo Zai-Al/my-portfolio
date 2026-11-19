@@ -22,18 +22,21 @@ type StreamEvent =
 
 /**
  * Asks a question. `onText` is called with the answer so far each time more arrives.
+ * `locale` is the page's language: the AI answers in the question's language and falls back
+ * to this one; the backend's error messages come in it too.
  * Throws ApiError: 400 too long, 429 rate limited, 503 AI unavailable (details[0] says why).
  */
 export async function streamAsk(
   question: string,
   history: AskTurn[],
   onText: (answerSoFar: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  locale = "en"
 ): Promise<AskAnswer> {
   const res = await fetch(`${API_URL}/api/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-    body: JSON.stringify({ question, history: history.slice(-MAX_HISTORY_TURNS) }),
+    body: JSON.stringify({ question, history: history.slice(-MAX_HISTORY_TURNS), locale }),
     signal,
   });
   if (!res.ok || !res.body) {
@@ -81,14 +84,20 @@ export async function streamAsk(
   return { answer: answer.trim(), sources };
 }
 
+/** The chat's error sentences, in the page's language (the "chat" strings). */
+export type AskErrorText = {
+  rateLimited: string;
+  tooLong: (max: number) => string;
+  unreachable: string;
+};
+
 /** A short, friendly line for any failure from streamAsk. */
-export function askErrorMessage(err: unknown): string {
+export function askErrorMessage(err: unknown, text: AskErrorText): string {
   if (err instanceof ApiError) {
-    if (err.status === 429)
-      return "Easy there - that's a lot of questions. Give it a minute and try again.";
-    if (err.status === 400)
-      return `That question is too long - keep it under ${MAX_QUESTION_LENGTH} characters.`;
+    if (err.status === 429) return text.rateLimited;
+    if (err.status === 400) return text.tooLong(MAX_QUESTION_LENGTH);
+    // The backend's own explanation (AI resting, busy, ...), already in the page's language.
     if (err.details[0]) return err.details[0];
   }
-  return "Couldn't reach the AI right now - try again in a moment.";
+  return text.unreachable;
 }

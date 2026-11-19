@@ -17,10 +17,15 @@ namespace PortfolioApi.Controllers;
 public record AskTurn([Required, RegularExpression("^(user|assistant)$")] string Role,
     [Required, MaxLength(AskController.MaxTurnLength)] string Text);
 
-/// <summary>A visitor's question, with the last few turns so follow-ups ("and its tech stack?") make sense.</summary>
+/// <summary>
+/// A visitor's question, with the last few turns so follow-ups ("and its tech stack?") make sense.
+/// Locale is the page's language ("en" or "ar"): the reply follows the question's language,
+/// and the locale decides when that's unclear (and the language of error messages).
+/// </summary>
 public record AskRequest(
     [Required, MaxLength(AskController.MaxQuestionLength)] string Question,
-    [MaxLength(AskController.MaxHistoryTurns)] List<AskTurn>? History);
+    [MaxLength(AskController.MaxHistoryTurns)] List<AskTurn>? History,
+    [RegularExpression("^(en|ar)$")] string? Locale = null);
 
 /// <summary>
 /// The AI guide (chat widget and terminal). Retrieves the most relevant site content,
@@ -71,7 +76,8 @@ public class AskController : ControllerBase
 
         var ownerName = await _db.SiteSettings.AsNoTracking().Where(s => s.Id == 1)
             .Select(s => s.FullName).FirstOrDefaultAsync(cancellationToken);
-        var system = AskPrompt.Build(ownerName, context);
+        var arabic = request.Locale == "ar";
+        var system = AskPrompt.Build(ownerName, context, arabic);
 
         var contents = history
             .Select(t => new GeminiTurn(t.Role == "assistant" ? "model" : "user", t.Text))
@@ -82,7 +88,7 @@ public class AskController : ControllerBase
         if (stream.Outcome != GeminiOutcome.Ok)
         {
             Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            await Response.WriteAsJsonAsync(new { message = Unavailable(stream.Outcome) }, cancellationToken);
+            await Response.WriteAsJsonAsync(new { message = Unavailable(stream.Outcome, arabic) }, cancellationToken);
             return;
         }
 
@@ -120,7 +126,8 @@ public class AskController : ControllerBase
         catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException)
         {
             _logger.LogWarning(ex, "Gemini stream broke off mid-answer");
-            await Send(new { type = "error", message = "The answer was cut off - try asking again." }, CancellationToken.None);
+            var message = arabic ? "انقطعت الإجابة - حاول السؤال مرة أخرى." : "The answer was cut off - try asking again.";
+            await Send(new { type = "error", message }, CancellationToken.None);
         }
     }
 
@@ -130,12 +137,21 @@ public class AskController : ControllerBase
         await Response.Body.FlushAsync(ct);
     }
 
-    private static string Unavailable(GeminiOutcome outcome) => outcome switch
-    {
-        GeminiOutcome.NotConfigured => "The AI isn't set up yet.",
-        GeminiOutcome.QuotaExceeded =>
-            "The AI is resting - it has used up its free quota for now. Try again later, or use the Contact section.",
-        GeminiOutcome.Busy => "The AI is very busy right now - try again in a minute.",
-        _ => "The AI hit an error - try again in a moment.",
-    };
+    private static string Unavailable(GeminiOutcome outcome, bool arabic) => arabic
+        ? outcome switch
+        {
+            GeminiOutcome.NotConfigured => "الذكاء الاصطناعي غير مُعدّ بعد.",
+            GeminiOutcome.QuotaExceeded =>
+                "الذكاء الاصطناعي في استراحة - استهلك حصته المجانية حاليًا. حاول لاحقًا، أو استخدم قسم التواصل.",
+            GeminiOutcome.Busy => "الذكاء الاصطناعي مشغول جدًا الآن - حاول بعد دقيقة.",
+            _ => "حدث خطأ في الذكاء الاصطناعي - حاول بعد قليل.",
+        }
+        : outcome switch
+        {
+            GeminiOutcome.NotConfigured => "The AI isn't set up yet.",
+            GeminiOutcome.QuotaExceeded =>
+                "The AI is resting - it has used up its free quota for now. Try again later, or use the Contact section.",
+            GeminiOutcome.Busy => "The AI is very busy right now - try again in a minute.",
+            _ => "The AI hit an error - try again in a moment.",
+        };
 }

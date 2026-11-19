@@ -26,39 +26,49 @@ import {
   getSkillCategories,
 } from "@/lib/api/public";
 import { personJsonLd, starterQuestions } from "@/lib/site";
+import { localize } from "@/lib/i18n/localize";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
-export default async function Home() {
+export default async function Home({ params }: PageProps<"/[locale]">) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations();
+  // One read per table for both languages; localize() then picks the Arabic text where it's
+  // filled in, so the sections below don't care which language is showing.
   const [experiences, projects, skillCategories, certifications, education, settings, guides] =
-    await Promise.all([
-      getExperiences(),
-      getProjects(),
-      getSkillCategories(),
-      getCertifications(),
-      getEducation(),
-      getSiteSettings(),
-      getGuides(),
-    ]);
+    localize(
+      await Promise.all([
+        getExperiences(),
+        getProjects(),
+        getSkillCategories(),
+        getCertifications(),
+        getEducation(),
+        getSiteSettings(),
+        getGuides(),
+      ]),
+      locale
+    );
 
   return (
     <>
-      {/* md–xl: the side menu (fixed, left) would cover the centred sections' left edge,
-          so make room for it; from xl the margins are wide enough on their own. */}
-      <main className="relative md:pl-20 xl:pl-0">
+      {/* md–xl: the side menu (fixed, at the start edge) would cover the centred sections'
+          edge, so make room for it; from xl the margins are wide enough on their own. */}
+      <main className="relative md:ps-20 xl:ps-0">
         <AuroraBackground />
         <CursorGlow />
         {/* First thing a keyboard user reaches: jump past the section menu. */}
         <a
           href="#home"
-          className="sr-only rounded border border-accent bg-void px-4 py-2 font-mono text-sm text-accent focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50"
+          className="sr-only rounded border border-accent bg-void px-4 py-2 font-mono text-sm text-accent focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50"
         >
-          Skip to content
+          {t("common.skipToContent")}
         </a>
         <Sidebar />
 
         {/* Structured data for search engines (schema.org Person), from SiteSettings. */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: personJsonLd(settings) }}
+          dangerouslySetInnerHTML={{ __html: personJsonLd(settings, locale) }}
         />
         <Hero settings={settings} skillCategories={skillCategories} />
 
@@ -89,11 +99,9 @@ export default async function Home() {
 
         {/* Projects */}
         <ParallaxSection id="projects" speed={0.08} className="mx-auto max-w-4xl px-6 py-24">
-          <SectionHeading>Projects</SectionHeading>
+          <SectionHeading>{t("projects.heading")}</SectionHeading>
           {projects.length === 0 ? (
-            <p className="mt-8 font-mono text-sm text-gray-400">
-              (connect the backend to populate this from the database)
-            </p>
+            <p className="mt-8 font-mono text-sm text-gray-400">{t("common.noContent")}</p>
           ) : (
             <div className="mt-8">
               <ProjectsSection projects={projects} />
@@ -103,10 +111,8 @@ export default async function Home() {
 
         {/* Contact */}
         <section id="contact" className="mx-auto max-w-4xl px-6 py-24">
-          <SectionHeading>Get in touch</SectionHeading>
-          <p className="mt-3 text-gray-400">
-            Reach out directly through any of the channels below.
-          </p>
+          <SectionHeading>{t("contact.heading")}</SectionHeading>
+          <p className="mt-3 text-gray-400">{t("contact.lead")}</p>
 
           <ContactSection settings={settings} />
         </section>

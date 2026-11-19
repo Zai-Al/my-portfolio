@@ -1,4 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap");
+/* IBM Plex Sans Arabic only draws the Arabic letters (/ar): Latin text keeps Inter,
+   Space Grotesk and JetBrains Mono, which have no Arabic. */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -28,7 +30,16 @@ html {
 body {
   background-color: #0a0e14;
   color: #e8ecf1;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", "IBM Plex Sans Arabic", sans-serif;
+}
+
+/* Arabic letters join up: spacing them out (tracking-*) breaks the words apart, and the
+   script has no capitals. Applies to Arabic text only, wherever it shows up. */
+:lang(ar) {
+  letter-spacing: 0 !important;
+}
+:lang(ar) .leading-relaxed {
+  line-height: 1.85;
 }
 
 /* Slow drifting aurora blobs used by <AuroraBackground /> */

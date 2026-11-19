@@ -57,8 +57,14 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("IssuerAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameAr")
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")
@@ -115,8 +121,15 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.PrimitiveCollection<List<string>>("AwardsAr")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("Degree")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DegreeAr")
                         .HasColumnType("text");
 
                     b.Property<string>("EndDate")
@@ -130,7 +143,13 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("InstitutionAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocationAr")
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")
@@ -157,11 +176,21 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.PrimitiveCollection<List<string>>("BulletsAr")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("Company")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("CompanyAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("Department")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DepartmentAr")
                         .HasColumnType("text");
 
                     b.Property<string>("EndDate")
@@ -174,11 +203,17 @@ namespace PortfolioApi.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("text");
 
+                    b.Property<string>("LocationAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("ProofImageUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Role")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleAr")
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")
@@ -190,6 +225,9 @@ namespace PortfolioApi.Migrations
 
                     b.Property<string>("Summary")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SummaryAr")
                         .HasColumnType("text");
 
                     b.PrimitiveCollection<List<string>>("Tech")
@@ -222,6 +260,9 @@ namespace PortfolioApi.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TitleAr")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -289,7 +330,13 @@ namespace PortfolioApi.Migrations
                     b.Property<string>("Context")
                         .HasColumnType("text");
 
+                    b.Property<string>("ContextAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("DemoNotes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DemoNotesAr")
                         .HasColumnType("text");
 
                     b.Property<string>("DemoUrl")
@@ -299,10 +346,17 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionAr")
+                        .HasColumnType("text");
+
                     b.Property<bool>("Featured")
                         .HasColumnType("boolean");
 
                     b.PrimitiveCollection<List<string>>("Highlights")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.PrimitiveCollection<List<string>>("HighlightsAr")
                         .IsRequired()
                         .HasColumnType("text[]");
 
@@ -311,6 +365,9 @@ namespace PortfolioApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("MyRole")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MyRoleAr")
                         .HasColumnType("text");
 
                     b.Property<string>("RepoUrl")
@@ -331,12 +388,18 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("SummaryAr")
+                        .HasColumnType("text");
+
                     b.PrimitiveCollection<List<string>>("Tech")
                         .IsRequired()
                         .HasColumnType("text[]");
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TitleAr")
                         .HasColumnType("text");
 
                     b.Property<string>("Year")
@@ -358,7 +421,13 @@ namespace PortfolioApi.Migrations
                     b.Property<string>("Availability")
                         .HasColumnType("text");
 
+                    b.Property<string>("AvailabilityAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("Bio")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BioAr")
                         .HasColumnType("text");
 
                     b.Property<string>("CvUrl")
@@ -370,19 +439,31 @@ namespace PortfolioApi.Migrations
                     b.Property<string>("FullName")
                         .HasColumnType("text");
 
+                    b.Property<string>("FullNameAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("GithubUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Headline")
                         .HasColumnType("text");
 
+                    b.Property<string>("HeadlineAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("HeroQuote")
+                        .HasColumnType("text");
+
+                    b.Property<string>("HeroQuoteAr")
                         .HasColumnType("text");
 
                     b.Property<string>("LinkedInUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocationAr")
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
@@ -395,7 +476,15 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.PrimitiveCollection<List<string>>("SoftSkillsAr")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.PrimitiveCollection<List<string>>("SpokenLanguages")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.PrimitiveCollection<List<string>>("SpokenLanguagesAr")
                         .IsRequired()
                         .HasColumnType("text[]");
 
@@ -420,8 +509,15 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.PrimitiveCollection<List<string>>("IncludesAr")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameAr")
                         .HasColumnType("text");
 
                     b.Property<int>("SkillCategoryId")
@@ -451,6 +547,9 @@ namespace PortfolioApi.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameAr")
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")

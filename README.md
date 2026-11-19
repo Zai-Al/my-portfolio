@@ -27,8 +27,9 @@ Every piece of content on the site (experience, education, certifications, skill
 - **Content from the database.** Nothing about me is hard-coded in the frontend. A background indexer keeps the AI's knowledge in step: every admin save queues a re-embed of only the text that changed.
 - **Live updates.** Save something in the admin dashboard and every open page shows it within a second, without a reload (Supabase Realtime Broadcast on a private channel only the admin can send to).
 - **Private admin dashboard.** Password plus authenticator-app code (Supabase Auth, TOTP). The API itself checks the second factor, so a stolen password alone can't change anything.
+- **English and Arabic.** The whole site is also at `/ar`, right to left, with Arabic content from the database (each text field has an Arabic copy; empty ones fall back to English). The AI guide answers in the visitor's language, and the admin dashboard can fill the Arabic fields with a Gemini translation to review before saving.
 - **Interactive extras.** A working terminal (`help`, `whoami`, `skills`, `projects`, `git log --stats`, …), live GitHub stats, and a Playground page with four small browser games.
-- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, contact details hidden from scrapers behind Cloudflare Turnstile, and 222 automated API tests in CI.
+- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, contact details hidden from scrapers behind Cloudflare Turnstile, and 237 automated API tests in CI.
 
 ## Architecture
 
@@ -81,6 +82,7 @@ flowchart LR
 | **Streamed answers** (Server-Sent Events) | The first words show up in about a second instead of after the whole answer is ready. |
 | **Cached reads** (Next.js, 1 hour) + on-save revalidation | Visitors get a fast page even while the free-tier API is asleep; admin edits still show up immediately. |
 | **Live updates** with Supabase Realtime Broadcast, not SignalR | After a save, the site clears its cache and then sends "changed" on a private channel; open pages reload their data in place. Sockets to the free-tier API would wake it for every visitor, and the API hears about a save before the cache is cleared. |
+| **Arabic as database fields + next-intl** | Content lives in the database, so a dictionary can't translate it: every text field has an `…Ar` twin that the page swaps in for `/ar`. next-intl handles the UI strings and the static `/ar` route; Tailwind's logical utilities (`ms-`, `ps-`, `start-`) flip the layout. |
 | **Free tiers only** | Vercel, Render, Supabase and Gemini all run on their free plans. |
 
 ## Security
@@ -99,10 +101,10 @@ flowchart LR
 
 ## Tech stack
 
-**Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons
+**Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons, next-intl (English/Arabic, RTL)
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
 **Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth, Storage and Realtime, Google Gemini
-**Tooling:** xUnit + `WebApplicationFactory` (222 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
+**Tooling:** xUnit + `WebApplicationFactory` (237 tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 
 ## Repository layout
@@ -110,7 +112,7 @@ flowchart LR
 ```
 backend/    ASP.NET Core Web API (controllers, EF Core models and migrations, AI services)
 frontend/   Next.js app (public site, /playground, private /admin)
-tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge, hidden contact details)
+tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge, hidden contact details, Arabic content and translation)
 .github/    CI (build, tests, lint, format, Docker build), keep-alive ping, Dependabot
 ```
 

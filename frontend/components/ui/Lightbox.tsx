@@ -6,6 +6,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { useMounted } from "@/lib/useMounted";
 
@@ -33,6 +34,9 @@ export default function Lightbox({
   const ref = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("lightbox");
+  // Right to left (Arabic): "previous" sits on the right and a swipe to the right goes forward.
+  const rtl = useLocale() === "ar";
   const open = index !== null && images.length > 0;
   useFocusTrap(ref, open, onClose);
 
@@ -50,18 +54,18 @@ export default function Lightbox({
     if (touchX.current === null || !multiple) return;
     const dx = e.changedTouches[0].clientX - touchX.current;
     touchX.current = null;
-    if (Math.abs(dx) >= 50) step(dx < 0 ? 1 : -1);
+    if (Math.abs(dx) >= 50) step(dx < 0 !== rtl ? 1 : -1);
   };
   const stepButton = (dir: -1 | 1, className: string) => (
     <button
-      aria-label={dir < 0 ? "Previous screenshot" : "Next screenshot"}
+      aria-label={dir < 0 ? t("previous") : t("next")}
       onClick={(e) => {
         e.stopPropagation();
         step(dir);
       }}
       className={className}
     >
-      {dir < 0 ? "‹" : "›"}
+      {dir < 0 !== rtl ? "‹" : "›"}
     </button>
   );
 
@@ -109,15 +113,15 @@ export default function Lightbox({
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
-            className="absolute right-4 top-4 rounded-full border border-border bg-void/80 px-3 py-1.5 text-gray-200 hover:text-white"
+            aria-label={t("close")}
+            className="absolute end-4 top-4 rounded-full border border-border bg-void/80 px-3 py-1.5 text-gray-200 hover:text-white"
           >
             ✕
           </button>
           {multiple && (
             <>
-              {stepButton(-1, `${sideNav} left-3`)}
-              {stepButton(1, `${sideNav} right-3`)}
+              {stepButton(-1, `${sideNav} start-3`)}
+              {stepButton(1, `${sideNav} end-3`)}
               <p className="absolute bottom-4 left-1/2 hidden -translate-x-1/2 font-mono text-xs text-gray-400 md:block">
                 {index + 1} / {images.length}
               </p>

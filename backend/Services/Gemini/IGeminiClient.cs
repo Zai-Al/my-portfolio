@@ -24,6 +24,9 @@ public record GeminiTurn(string Role, string Text);
 /// </summary>
 public record GeminiStream(GeminiOutcome Outcome, IAsyncEnumerable<string> Chunks);
 
+/// <summary>A whole (not streamed) answer; Text is set only when Outcome is Ok.</summary>
+public record GeminiText(GeminiOutcome Outcome, string? Text);
+
 /// <summary>Embeddings, one per input text, in the same order (only when Outcome is Ok).</summary>
 public record GeminiEmbeddings(GeminiOutcome Outcome, IReadOnlyList<float[]> Vectors);
 
@@ -35,6 +38,13 @@ public interface IGeminiClient
 {
     /// <summary>Starts a streamed answer. Tries the main model, then the fallback if the first is busy.</summary>
     Task<GeminiStream> StreamAsync(string systemInstruction, IReadOnlyList<GeminiTurn> contents,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// One answer as JSON (Gemini's JSON mode), waited for in full. Used by the admin's
+    /// "translate to Arabic". Tries the main model, then the fallback if the first is busy.
+    /// </summary>
+    Task<GeminiText> GenerateJsonAsync(string systemInstruction, string userText,
         CancellationToken cancellationToken = default);
 
     /// <summary>Embeds up to 100 texts in one call.</summary>

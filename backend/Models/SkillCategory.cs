@@ -9,5 +9,7 @@ public class SkillCategory : IOrderedEntity
     [Required] public string Name { get; set; } = "";
     public string Icon { get; set; } = "FaCode";
     public int SortOrder { get; set; }
+
+    public string? NameAr { get; set; } // Arabic name (shown on /ar; empty = English)
     public List<Skill> Skills { get; set; } = new();
 }

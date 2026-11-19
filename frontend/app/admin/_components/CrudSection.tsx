@@ -19,6 +19,7 @@ import type { SearchConfig } from "../_lib/search";
 import { FilterChips, SearchPanel, SearchToggle } from "./SearchPanel";
 import EditPanel from "./EditPanel";
 import FieldInput from "./FieldInput";
+import TranslateButton from "./TranslateButton";
 
 type Ordered = { id: number; sortOrder: number };
 
@@ -301,6 +302,14 @@ export default function CrudSection<T extends Ordered>({
             >
               cancel
             </button>
+            {form && fields.some((f) => f.arabic) && (
+              <TranslateButton
+                token={token}
+                fields={fields}
+                values={form}
+                onTranslated={(patch) => setForm((f) => (f ? { ...f, ...patch } : f))}
+              />
+            )}
           </div>
         }
       >

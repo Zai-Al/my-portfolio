@@ -23,6 +23,16 @@ public class SiteSettings
     public List<string> SoftSkills { get; set; } = new();
     public List<string> SpokenLanguages { get; set; } = new();
 
+    // Arabic versions (shown on /ar; empty = fall back to the English field).
+    public string? FullNameAr { get; set; }
+    public string? HeadlineAr { get; set; }
+    public string? BioAr { get; set; }
+    public string? LocationAr { get; set; }
+    public string? AvailabilityAr { get; set; }
+    public string? HeroQuoteAr { get; set; }
+    public List<string> SoftSkillsAr { get; set; } = new();
+    public List<string> SpokenLanguagesAr { get; set; } = new();
+
     /// <summary>
     /// Not stored. The public read leaves Email and Phone out (spam bots scrape them) and sets
     /// this instead, so the site knows whether to show the "Show email" button.

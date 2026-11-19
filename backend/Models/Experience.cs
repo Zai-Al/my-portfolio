@@ -18,4 +18,12 @@ public class Experience : IOrderedEntity
     public string Icon { get; set; } = "FaBriefcase"; // react-icons component name
     public string? ProofImageUrl { get; set; }        // shown when the visitor clicks "View"
     public int SortOrder { get; set; }
+
+    // Arabic versions (shown on /ar; empty = fall back to the English field).
+    public string? CompanyAr { get; set; }
+    public string? RoleAr { get; set; }
+    public string? DepartmentAr { get; set; }
+    public string? LocationAr { get; set; }
+    public string? SummaryAr { get; set; }
+    public List<string> BulletsAr { get; set; } = new();
 }

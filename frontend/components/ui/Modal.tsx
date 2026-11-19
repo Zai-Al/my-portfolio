@@ -5,6 +5,7 @@
 import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { useMounted } from "@/lib/useMounted";
 
@@ -26,6 +27,7 @@ export default function Modal({
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("common");
   // Esc closes, Tab stays inside, focus returns to whatever opened it.
   useFocusTrap(dialogRef, open, onClose);
 
@@ -62,12 +64,12 @@ export default function Modal({
           >
             <button
               onClick={onClose}
-              aria-label="Close"
-              className="absolute right-4 top-4 text-gray-400 hover:text-white"
+              aria-label={t("close")}
+              className="absolute end-4 top-4 text-gray-400 hover:text-white"
             >
               ✕
             </button>
-            <h3 className="pr-8 font-display text-xl font-bold">{title}</h3>
+            <h3 className="pe-8 font-display text-xl font-bold">{title}</h3>
             {subtitle && <p className="mt-1 font-mono text-sm text-gray-400">{subtitle}</p>}
             <div className="mt-4">{children}</div>
           </motion.div>

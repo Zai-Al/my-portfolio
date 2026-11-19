@@ -22,4 +22,13 @@ public class Project : IOrderedEntity
     public string? Year { get; set; }
     public bool Featured { get; set; }
     public int SortOrder { get; set; }
+
+    // Arabic versions (shown on /ar; empty = fall back to the English field).
+    public string? TitleAr { get; set; }
+    public string? SummaryAr { get; set; }
+    public string? DescriptionAr { get; set; }
+    public string? ContextAr { get; set; }
+    public string? MyRoleAr { get; set; }
+    public List<string> HighlightsAr { get; set; } = new();
+    public string? DemoNotesAr { get; set; }
 }

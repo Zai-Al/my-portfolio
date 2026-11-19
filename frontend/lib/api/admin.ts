@@ -47,3 +47,14 @@ export const getKnowledgeStatus = (token: string) =>
 /** Queues a rebuild; it runs in the background on the API. */
 export const rebuildKnowledge = (token: string) =>
   request("/api/knowledge/reindex", { method: "POST", token });
+
+/**
+ * "Translate to Arabic": English texts by field name in, Arabic by field name out
+ * (POST /api/translate, Gemini). Nothing is saved; the form shows the result for review.
+ */
+export const translateToArabic = (token: string, fields: Record<string, string | string[]>) =>
+  request<{ fields: Record<string, string | string[]> }>("/api/translate", {
+    method: "POST",
+    token,
+    body: { fields },
+  });

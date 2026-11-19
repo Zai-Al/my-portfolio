@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
 import type { Guide, SiteSettings, SkillCategory } from "@/lib/types";
+import { localePath } from "@/i18n/routing";
 
 /**
  * The site's public address, for link previews, the sitemap and robots.txt.
@@ -23,27 +24,33 @@ export function shortBio(settings: SiteSettings, max = 160): string {
 }
 
 /** Terminal `whoami`: name, headline, first line of the bio, where and how I work. */
-export function whoamiText(s: SiteSettings): string {
+export function whoamiText(s: SiteSettings, loading: string): string {
   const lines = [
     [s.fullName, s.headline].filter(Boolean).join(" — "),
     s.bio ? shortBio(s, 220) : null,
     [s.location, s.availability].filter(Boolean).join(" · ") || null,
   ].filter(Boolean);
-  return lines.length ? lines.join("\n") : "Still loading my profile. Try again in a moment.";
+  return lines.length ? lines.join("\n") : loading;
 }
 
+/** The terminal's own sentences, in the page's language. */
+export type SkillsTextLabels = { more: (count: number) => string; hint: string; empty: string };
+
 /** Terminal `skills`: each category with its first few skills, in display order. */
-export function skillsText(categories: SkillCategory[], perCategory = 6): string {
+export function skillsText(
+  categories: SkillCategory[],
+  labels: SkillsTextLabels,
+  perCategory = 6
+): string {
   const lines = categories
     .filter((c) => c.skills?.length)
     .map((c) => {
       const names = c.skills.slice(0, perCategory).map((sk) => sk.name);
-      const more = c.skills.length > perCategory ? `, +${c.skills.length - perCategory} more` : "";
+      const more =
+        c.skills.length > perCategory ? `, ${labels.more(c.skills.length - perCategory)}` : "";
       return `${c.name}: ${names.join(", ")}${more}`;
     });
-  return lines.length
-    ? `${lines.join("\n")}\n\nHover the tiles in the Skills section for details.`
-    : "See the Skills section for what I work with.";
+  return lines.length ? `${lines.join("\n")}\n\n${labels.hint}` : labels.empty;
 }
 
 /**
@@ -51,14 +58,14 @@ export function skillsText(categories: SkillCategory[], perCategory = 6): string
  * Rendered as JSON inside <script type="application/ld+json">; "<" is escaped so the
  * text can never close the script tag.
  */
-export function personJsonLd(s: SiteSettings): string {
+export function personJsonLd(s: SiteSettings, locale = "en"): string {
   const data = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: s.fullName || undefined,
     jobTitle: s.headline || undefined,
     description: s.bio ? shortBio(s, 300) : undefined,
-    url: SITE_URL,
+    url: `${SITE_URL}${localePath(locale, "/")}`.replace(/\/$/, ""),
     address: s.location ? { "@type": "PostalAddress", addressCountry: s.location } : undefined,
     knowsLanguage: s.spokenLanguages.length
       ? s.spokenLanguages.map((l) => l.replace(/\s*\(.*\)\s*$/, ""))

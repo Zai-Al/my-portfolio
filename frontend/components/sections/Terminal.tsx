@@ -3,23 +3,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { MAX_QUESTION_LENGTH } from "@/lib/api/ask";
 import { openAiGuide } from "@/lib/aiGuide";
 
 type Line = { type: "input" | "output" | "ai" | "hack"; text: string };
 
-const HELP_TEXT = `Available commands:
-  whoami          - who I am
-  skills          - what I work with
-  projects        - jump to projects
-  contact         - how to reach me
-  curl resume.pdf - download my resume
-  git log --stats - pull live GitHub stats
-  clear           - clear the terminal
-  help            - show this message
-
-Not a command? Just type a question - the AI guide
-(bottom-right) opens and answers it.`;
+/** The terminal's sentences, in the page's language ("terminal" strings in messages/*.json). */
+type TerminalText = (key: string, values?: Record<string, string>) => string;
 
 function prefersReducedMotion(): boolean {
   return (
@@ -36,8 +27,8 @@ function progressBar(pct: number): string {
   return `[${"█".repeat(filled)}${"-".repeat(10 - filled)}] ${pct}%`;
 }
 
-function downloadResume(cvUrl: string | null): string {
-  if (!cvUrl) return "No CV has been uploaded yet.";
+function downloadResume(cvUrl: string | null, t: TerminalText): string {
+  if (!cvUrl) return t("noCv");
   const a = document.createElement("a");
   a.href = cvUrl;
   a.download = ""; // same-origin files download; cross-origin ones open in a new tab
@@ -46,7 +37,7 @@ function downloadResume(cvUrl: string | null): string {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  return "Downloading my CV...";
+  return t("downloading");
 }
 
 // "https://github.com/Zai-Al" -> "Zai-Al"
@@ -59,8 +50,8 @@ function githubHandle(githubUrl: string | null): string | null {
   }
 }
 
-async function fetchGithubStats(handle: string | null): Promise<string> {
-  if (!handle) return "No GitHub profile is set yet.";
+async function fetchGithubStats(handle: string | null, t: TerminalText): Promise<string> {
+  if (!handle) return t("noGithub");
   try {
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(handle)}`);
     if (!res.ok) throw new Error();
@@ -73,7 +64,7 @@ async function fetchGithubStats(handle: string | null): Promise<string> {
       `  joined       : ${new Date(data.created_at).toISOString().slice(0, 10)}`,
     ].join("\n");
   } catch {
-    return "Couldn't reach the GitHub API right now.";
+    return t("githubError");
   }
 }
 
@@ -138,26 +129,27 @@ function suggestCommand(cmd: string): string | null {
 // Returns null for "not handled", or a string/Promise<string> of output.
 function runCommand(
   cmd: string,
-  links: { cvUrl: string | null; githubUrl: string | null; whoami: string; skills: string }
+  links: { cvUrl: string | null; githubUrl: string | null; whoami: string; skills: string },
+  t: TerminalText
 ): string | Promise<string> | null {
   switch (normalizeCommand(cmd)) {
     case "help":
-      return HELP_TEXT;
+      return t("help");
     case "whoami":
       return links.whoami;
     case "skills":
       return links.skills;
     case "projects":
       document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
-      return "Scrolling to projects...";
+      return t("scrollingProjects");
     case "contact":
       document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-      return "Scrolling to contact...";
+      return t("scrollingContact");
     case "curl resume.pdf":
-      return downloadResume(links.cvUrl);
+      return downloadResume(links.cvUrl, t);
     case "git log --stats":
     case "git log --stat":
-      return fetchGithubStats(githubHandle(links.githubUrl));
+      return fetchGithubStats(githubHandle(links.githubUrl), t);
     default:
       return null;
   }
@@ -180,9 +172,8 @@ export default function Terminal({
   skills,
   className = "w-full max-w-2xl",
 }: TerminalProps) {
-  const [lines, setLines] = useState<Line[]>([
-    { type: "output", text: "Welcome. Type 'help' for commands, or just ask me a question." },
-  ]);
+  const t = useTranslations("terminal");
+  const [lines, setLines] = useState<Line[]>(() => [{ type: "output", text: t("welcome") }]);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -236,7 +227,7 @@ export default function Terminal({
       return;
     }
 
-    const builtIn = runCommand(cmd, { cvUrl, githubUrl, whoami, skills });
+    const builtIn = runCommand(cmd, { cvUrl, githubUrl, whoami, skills }, t);
     if (builtIn !== null) {
       const text = typeof builtIn === "string" ? builtIn : await builtIn;
       appendLine({ type: "output", text });
@@ -248,7 +239,7 @@ export default function Terminal({
     if (suggestion) {
       appendLine({
         type: "output",
-        text: `command not found: ${cmd}\nDid you mean '${suggestion}'? Press Enter to run it.`,
+        text: t("notFound", { cmd, suggestion }),
       });
       setInput(suggestion);
       return;
@@ -257,11 +248,14 @@ export default function Terminal({
     // Anything else is a question: hand it to the AI guide panel, so there's one AI and
     // one conversation (follow-ups and source links work there).
     openAiGuide(cmd);
-    appendLine({ type: "ai", text: "→ asking the AI guide… (it opened bottom-right ↘)" });
+    appendLine({ type: "ai", text: t("asking") });
   }
 
+  // Always left to right, like a real terminal (the commands are English); each line still
+  // lines up by its own language (dir="auto"), so Arabic output reads right to left.
   return (
     <div
+      dir="ltr"
       className={`${className} rounded-lg border border-border bg-panel/80 shadow-lg backdrop-blur-sm transition-colors focus-within:border-accent/60`}
     >
       <div className="flex items-center gap-1.5 border-b border-border px-4 py-2">
@@ -275,6 +269,7 @@ export default function Terminal({
         {lines.map((line, i) => (
           <div
             key={i}
+            dir="auto"
             className={
               line.type === "input"
                 ? "text-accent"
@@ -296,8 +291,9 @@ export default function Terminal({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="flex-1 bg-transparent font-mono text-sm text-white outline-none"
-          aria-label="Terminal: type a command or ask a question"
-          placeholder="type a command or ask anything..."
+          aria-label={t("ariaLabel")}
+          placeholder={t("placeholder")}
+          dir="auto"
           maxLength={MAX_QUESTION_LENGTH}
           autoComplete="off"
           autoCapitalize="none"

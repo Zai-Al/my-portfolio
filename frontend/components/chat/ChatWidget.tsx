@@ -4,6 +4,8 @@
 
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { localePath } from "@/i18n/routing";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { FaPaperPlane, FaRobot } from "react-icons/fa";
 import {
@@ -54,9 +56,12 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
   const reduceMotion = useReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("chat");
+  const locale = useLocale();
+  const homePath = localePath(locale, "/");
 
   const firstName = ownerName?.trim().split(/\s+/)[0] || null;
-  const title = firstName ? `Ask about ${firstName}` : "Ask the AI guide";
+  const title = firstName ? t("askAbout", { name: firstName }) : t("askGuide");
 
   // Waiting for the first words of an answer (the free server may be waking up).
   const waiting = busy && messages[messages.length - 1]?.text === "";
@@ -109,23 +114,35 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
         question,
         history,
         (text) => update(botId, { text }),
-        controller.signal
+        controller.signal,
+        locale
       );
-      update(botId, { text: answer || "No answer came back - try asking again.", sources });
+      update(botId, { text: answer || t("noAnswer"), sources });
     } catch (err) {
       if (controller.signal.aborted) return;
-      update(botId, { text: askErrorMessage(err), error: true });
+      const message = askErrorMessage(err, {
+        rateLimited: t("rateLimited"),
+        tooLong: (max) => t("tooLong", { max }),
+        unreachable: t("unreachable"),
+      });
+      update(botId, { text: message, error: true });
     } finally {
       setBusy(false);
       inputRef.current?.focus();
     }
   }
 
-  // Source links: scroll to a section, or open a project's details popup.
+  // Source links: scroll to a section, or open a project's details popup. Other pages
+  // ("/playground") and the home page from elsewhere open in the current language.
+  const sourceHref = (anchor: string) =>
+    anchor.startsWith("#")
+      ? pathname === homePath
+        ? anchor
+        : `${homePath}${anchor}`
+      : localePath(locale, anchor);
   function goTo(anchor: string) {
     setOpen(false);
-    if (!anchor.startsWith("#")) return router.push(anchor);
-    if (pathname !== "/") return router.push(`/${anchor}`);
+    if (!anchor.startsWith("#") || pathname !== homePath) return router.push(sourceHref(anchor));
 
     if (anchor.startsWith("#project-")) {
       // ProjectsSection opens the project named in the hash.
@@ -154,10 +171,10 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
           onClick={() => setOpen(true)}
           aria-label={title}
           title={title}
-          className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full border border-accent/60 bg-panel/90 px-4 py-3 font-mono text-sm text-accent shadow-[0_8px_30px_-6px_rgba(0,255,157,0.45)] backdrop-blur transition-colors hover:border-accent hover:bg-panel md:bottom-6 md:right-6"
+          className="fixed bottom-20 end-4 z-50 flex items-center gap-2 rounded-full border border-accent/60 bg-panel/90 px-4 py-3 font-mono text-sm text-accent shadow-[0_8px_30px_-6px_rgba(0,255,157,0.45)] backdrop-blur transition-colors hover:border-accent hover:bg-panel md:bottom-6 md:end-6"
         >
           <FaRobot className="h-5 w-5" aria-hidden />
-          <span>Ask AI</span>
+          <span>{t("button")}</span>
           <span
             className="h-4 w-[2px] animate-pulse bg-accent/80 motion-reduce:animate-none"
             aria-hidden
@@ -175,15 +192,15 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
             tabIndex={-1}
             {...pop}
             transition={{ duration: reduceMotion ? 0 : 0.18 }}
-            className="fixed inset-x-2 bottom-2 z-50 flex h-[min(80dvh,560px)] flex-col overflow-hidden rounded-lg border border-border bg-panel/95 font-mono text-sm shadow-2xl backdrop-blur-md outline-none transition-colors focus-within:border-accent/60 md:inset-x-auto md:bottom-6 md:right-6 md:w-[420px]"
+            className="fixed inset-x-2 bottom-2 z-50 flex h-[min(80dvh,560px)] flex-col overflow-hidden rounded-lg border border-border bg-panel/95 font-mono text-sm shadow-2xl backdrop-blur-md outline-none transition-colors focus-within:border-accent/60 md:inset-x-auto md:bottom-6 md:end-6 md:w-[420px]"
           >
             {/* Title bar, same as the home page terminal; the red dot closes. */}
             <div className="flex items-center gap-1.5 border-b border-border px-4 py-2">
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close the AI guide"
-                title="Close (Esc)"
+                aria-label={t("close")}
+                title={t("closeTitle")}
                 className="group flex h-3 w-3 items-center justify-center rounded-full bg-red-500/70 hover:bg-red-500"
               >
                 <span className="text-[9px] leading-none text-void opacity-0 group-hover:opacity-100">
@@ -192,10 +209,10 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
               </button>
               <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
               <span className="h-3 w-3 rounded-full bg-green-500/70" />
-              <span className="ml-3 truncate text-xs text-gray-400">
+              <span dir="ltr" className="ms-3 truncate text-xs text-gray-400">
                 guest@portfolio:~/ai-guide
               </span>
-              <span className="ml-auto text-[10px] text-gray-500">esc to close</span>
+              <span className="ms-auto text-[10px] text-gray-500">{t("escHint")}</span>
             </div>
             <div className="flex items-center gap-3 border-b border-border bg-void/30 px-4 py-3">
               <Avatar size="lg" />
@@ -205,7 +222,7 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
                 </h2>
                 <p className="flex items-center gap-1.5 text-[11px] text-gray-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-                  AI guide · answers from this portfolio
+                  {t("tagline")}
                 </p>
               </div>
             </div>
@@ -219,18 +236,19 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
             >
               <Bot>
                 <p className="text-gray-200">
-                  {`Hi! I'm the AI guide.${firstName ? ` Ask me anything about ${firstName}` : " Ask me anything"} - experience, projects, skills, or how to use this site.`}
+                  {firstName ? t("greeting", { name: firstName }) : t("greetingNoName")}
                 </p>
               </Bot>
 
               {messages.length === 0 && suggestions.length > 0 && (
-                <div className="flex flex-wrap gap-2 pl-9">
+                <div className="flex flex-wrap gap-2 ps-9">
                   {suggestions.map((q) => (
                     <button
                       key={q}
                       type="button"
                       onClick={() => ask(q)}
-                      className="rounded-full border border-border px-3 py-1.5 text-left text-xs text-aurora-teal transition-colors hover:border-accent/60 hover:text-accent"
+                      dir="auto"
+                      className="rounded-full border border-border px-3 py-1.5 text-start text-xs text-aurora-teal transition-colors hover:border-accent/60 hover:text-accent"
                     >
                       <span className="text-gray-500">$ </span>
                       {q}
@@ -243,7 +261,8 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
                 m.role === "user" ? (
                   <p
                     key={m.id}
-                    className="ml-auto w-fit max-w-[85%] whitespace-pre-wrap break-words rounded-lg rounded-br-sm border border-accent/30 bg-accent/10 px-3 py-2 text-accent"
+                    dir="auto"
+                    className="ms-auto w-fit max-w-[85%] whitespace-pre-wrap break-words rounded-lg rounded-ee-sm border border-accent/30 bg-accent/10 px-3 py-2 text-accent"
                   >
                     <span className="text-accent/60">{"> "}</span>
                     {m.text}
@@ -254,6 +273,7 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
                       <Thinking waking={waking} />
                     ) : (
                       <p
+                        dir="auto"
                         className={`whitespace-pre-wrap break-words leading-relaxed ${m.error ? "text-amber-300" : "text-gray-200"}`}
                       >
                         {m.text.replace(/\*\*/g, "")}
@@ -265,11 +285,7 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
                         {m.sources.map((src) => (
                           <a
                             key={`${src.type}-${src.anchor}-${src.title}`}
-                            href={
-                              src.anchor.startsWith("#") && pathname !== "/"
-                                ? `/${src.anchor}`
-                                : src.anchor
-                            }
+                            href={sourceHref(src.anchor)}
                             onClick={(e) => {
                               e.preventDefault();
                               goTo(src.anchor);
@@ -294,7 +310,7 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
               className="flex items-center gap-2 border-t border-border px-3 py-3"
             >
               <div className="flex min-w-0 flex-1 items-center rounded-md border border-border bg-void/60 px-3 py-2 transition-colors focus-within:border-accent/60">
-                <span className="mr-2 text-accent" aria-hidden>
+                <span className="me-2 text-accent" aria-hidden>
                   {">"}
                 </span>
                 <input
@@ -302,8 +318,9 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   maxLength={MAX_QUESTION_LENGTH}
-                  placeholder={busy ? "answering…" : "ask a question..."}
-                  aria-label="Your question"
+                  placeholder={busy ? t("answering") : t("placeholder")}
+                  aria-label={t("yourQuestion")}
+                  dir="auto"
                   autoComplete="off"
                   className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 outline-none"
                 />
@@ -311,10 +328,10 @@ export default function ChatWidget({ ownerName, suggestions }: ChatWidgetProps) 
               <button
                 type="submit"
                 disabled={busy || !input.trim()}
-                aria-label="Send"
+                aria-label={t("send")}
                 className="rounded-md border border-accent/60 p-2.5 text-accent transition-colors hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <FaPaperPlane aria-hidden />
+                <FaPaperPlane aria-hidden className="rtl:-scale-x-100" />
               </button>
             </form>
           </motion.div>
@@ -329,7 +346,7 @@ function Bot({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-2">
       <Avatar />
-      <div className="min-w-0 max-w-[88%] rounded-lg rounded-tl-sm border border-border bg-void/40 px-3 py-2">
+      <div className="min-w-0 max-w-[88%] rounded-lg rounded-ss-sm border border-border bg-void/40 px-3 py-2">
         {children}
       </div>
     </div>
@@ -352,13 +369,14 @@ function Avatar({ size = "sm" }: { size?: "sm" | "lg" }) {
 function Cursor() {
   return (
     <span
-      className="ml-0.5 inline-block h-[1em] w-[0.5em] translate-y-[2px] animate-pulse bg-accent/70 motion-reduce:animate-none"
+      className="ms-0.5 inline-block h-[1em] w-[0.5em] translate-y-[2px] animate-pulse bg-accent/70 motion-reduce:animate-none"
       aria-hidden
     />
   );
 }
 
 function Thinking({ waking }: { waking: boolean }) {
+  const t = useTranslations("chat");
   return (
     <div role="status" className="flex items-center gap-2 text-gray-400">
       <span className="flex gap-1" aria-hidden>
@@ -370,11 +388,7 @@ function Thinking({ waking }: { waking: boolean }) {
           />
         ))}
       </span>
-      <span className="text-xs">
-        {waking
-          ? "waking up the server... the first answer can take up to a minute"
-          : "thinking..."}
-      </span>
+      <span className="text-xs">{waking ? t("waking") : t("thinking")}</span>
     </div>
   );
 }

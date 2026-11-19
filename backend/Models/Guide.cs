@@ -11,4 +11,6 @@ public class Guide : IOrderedEntity
     [Required] public string Answer { get; set; } = "";
     public List<string> Keywords { get; set; } = new();
     public int SortOrder { get; set; }
+
+    public string? TitleAr { get; set; } // Arabic title, used as a starter question on /ar
 }

@@ -5,6 +5,7 @@
 import { useEffect, useEffectEvent, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import DynamicIcon from "@/components/ui/DynamicIcon";
 import Lightbox from "@/components/ui/Lightbox";
 import Modal from "@/components/ui/Modal";
@@ -25,6 +26,10 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
   const [zoomed, setZoomed] = useState(false);
   const [demoNoticeOpen, setDemoNoticeOpen] = useState(false);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("projects");
+  // In Arabic the page runs right to left, so "previous" is on the right: the arrow keys
+  // follow the screen, not the reading order.
+  const rtl = useLocale() === "ar";
 
   const active = activeIndex !== null ? (projects[activeIndex] ?? null) : null;
   const shots = active?.screenshots ?? [];
@@ -45,7 +50,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
     const el = e.target as HTMLElement | null;
     if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    stepSlide(e.key === "ArrowLeft" ? -1 : 1);
+    stepSlide((e.key === "ArrowLeft") !== rtl ? -1 : 1);
     // An arrow key counts as keyboard use, so the browser would draw the focus ring on
     // whatever was last clicked (a dot, ✕, the picture). Hand focus to the popup instead.
     const dialog = el?.closest<HTMLElement>('[role="dialog"]');
@@ -134,7 +139,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
               whileTap={reduceMotion ? undefined : cardTap}
               className="mt-4 w-full rounded border border-accent px-5 py-2 text-center font-mono text-sm text-accent transition-colors hover:bg-accent/10"
             >
-              View details
+              {t("viewDetails")}
             </motion.button>
           </motion.div>
         ))}
@@ -166,14 +171,18 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                   <button
                     type="button"
                     onClick={() => setZoomed(true)}
-                    aria-label={`Enlarge screenshot ${slideIndex + 1} of ${shots.length}`}
+                    aria-label={t("enlarge", { n: slideIndex + 1, total: shots.length })}
                     className="relative block aspect-[16/10] w-full cursor-zoom-in overflow-hidden rounded-lg border border-border bg-void"
                   >
                     {shots.map((src, i) => (
                       <Image
                         key={`${src}-${i}`}
                         src={src}
-                        alt={i === slideIndex ? `${active.title} screenshot ${i + 1}` : ""}
+                        alt={
+                          i === slideIndex
+                            ? t("screenshotAlt", { title: active.title, n: i + 1 })
+                            : ""
+                        }
                         aria-hidden={i !== slideIndex}
                         fill
                         loading="eager"
@@ -184,25 +193,25 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                     ))}
                   </button>
                 ) : (
-                  <SafeImage src={null} alt="" fallbackText="Screenshots coming soon" />
+                  <SafeImage src={null} alt="" fallbackText={t("comingSoon")} />
                 )}
                 {shots.length > 1 && (
                   <>
                     <button
                       type="button"
-                      aria-label="Previous screenshot"
+                      aria-label={t("previousShot")}
                       onClick={() => stepSlide(-1)}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-border bg-void/80 px-2.5 py-1 text-gray-200 hover:border-accent hover:text-accent"
+                      className="absolute start-2 top-1/2 -translate-y-1/2 rounded-full border border-border bg-void/80 px-2.5 py-1 text-gray-200 hover:border-accent hover:text-accent"
                     >
-                      ‹
+                      {rtl ? "›" : "‹"}
                     </button>
                     <button
                       type="button"
-                      aria-label="Next screenshot"
+                      aria-label={t("nextShot")}
                       onClick={() => stepSlide(1)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-border bg-void/80 px-2.5 py-1 text-gray-200 hover:border-accent hover:text-accent"
+                      className="absolute end-2 top-1/2 -translate-y-1/2 rounded-full border border-border bg-void/80 px-2.5 py-1 text-gray-200 hover:border-accent hover:text-accent"
                     >
-                      ›
+                      {rtl ? "‹" : "›"}
                     </button>
                   </>
                 )}
@@ -214,7 +223,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                       <button
                         key={i}
                         type="button"
-                        aria-label={`Go to screenshot ${i + 1}`}
+                        aria-label={t("goToShot", { n: i + 1 })}
                         aria-current={i === slideIndex}
                         onClick={() => setSlideIndex(i)}
                         className={`h-1.5 w-1.5 rounded-full ${
@@ -225,7 +234,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                   </div>
                   <span className="font-mono text-[11px] text-gray-400">
                     {slideIndex + 1}/{shots.length}
-                    <span className="hidden sm:inline"> · ← → keys · click to enlarge</span>
+                    <span className="hidden sm:inline">{t("keysHint")}</span>
                   </span>
                 </div>
               )}
@@ -237,7 +246,9 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
 
             {active.myRole && (
               <div>
-                <h4 className="font-mono text-xs uppercase tracking-wide text-gray-400">My role</h4>
+                <h4 className="font-mono text-xs uppercase tracking-wide text-gray-400">
+                  {t("myRole")}
+                </h4>
                 <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-gray-300">
                   {active.myRole}
                 </p>
@@ -247,7 +258,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
             {active.highlights.length > 0 && (
               <div>
                 <h4 className="font-mono text-xs uppercase tracking-wide text-gray-400">
-                  Highlights
+                  {t("highlights")}
                 </h4>
                 <ul className="mt-2 space-y-1.5 text-sm text-gray-300">
                   {active.highlights.map((h) => (
@@ -282,7 +293,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                 rel="noopener noreferrer"
                 className="block w-full rounded border border-accent px-5 py-2 text-center font-mono text-sm text-accent transition-colors hover:bg-accent/10"
               >
-                view repo →
+                {t("viewRepo")}
               </a>
             )}
             {DEMO_SLUGS.has(active.slug) &&
@@ -293,14 +304,14 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                   rel="noopener noreferrer"
                   className="block w-full rounded border border-accent px-5 py-2 text-center font-mono text-sm text-accent transition-colors hover:bg-accent/10"
                 >
-                  view demo →
+                  {t("viewDemo")}
                 </a>
               ) : (
                 <button
                   onClick={() => setDemoNoticeOpen(true)}
                   className="block w-full rounded border border-accent px-5 py-2 text-center font-mono text-sm text-accent transition-colors hover:bg-accent/10"
                 >
-                  view demo →
+                  {t("viewDemo")}
                 </button>
               ))}
 
@@ -311,14 +322,15 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                   onClick={() => stepProject(-1)}
                   className="rounded border border-border px-3 py-1.5 text-gray-300 hover:bg-white/5"
                 >
-                  ← {projects[(activeIndex! - 1 + projects.length) % projects.length].title}
+                  {rtl ? "→" : "←"}{" "}
+                  {projects[(activeIndex! - 1 + projects.length) % projects.length].title}
                 </button>
                 <button
                   type="button"
                   onClick={() => stepProject(1)}
                   className="rounded border border-border px-3 py-1.5 text-gray-300 hover:bg-white/5"
                 >
-                  {projects[(activeIndex! + 1) % projects.length].title} →
+                  {projects[(activeIndex! + 1) % projects.length].title} {rtl ? "←" : "→"}
                 </button>
               </div>
             )}
@@ -329,7 +341,7 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
       <Lightbox
         images={shots}
         index={zoomed ? slideIndex : null}
-        alt={(i) => `${active?.title ?? "Project"} screenshot ${i + 1}`}
+        alt={(i) => t("screenshotAlt", { title: active?.title ?? t("project"), n: i + 1 })}
         onIndex={setSlideIndex}
         onClose={() => setZoomed(false)}
       />
@@ -337,13 +349,10 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
       <Modal
         open={demoNoticeOpen}
         onClose={() => setDemoNoticeOpen(false)}
-        title="Live demo"
+        title={t("liveDemo")}
         subtitle={active?.title}
       >
-        <p className="text-sm text-gray-300">
-          {active?.demoNotes ??
-            "Live demo is under progress — check back soon, or reach out for an early look."}
-        </p>
+        <p className="text-sm text-gray-300">{active?.demoNotes ?? t("demoInProgress")}</p>
       </Modal>
     </>
   );

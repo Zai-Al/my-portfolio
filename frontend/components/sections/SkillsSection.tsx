@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import DynamicIcon from "@/components/ui/DynamicIcon";
 import SectionHeading from "@/components/ui/SectionHeading";
 import type { SkillCategory } from "@/lib/types";
@@ -12,6 +13,7 @@ import { revealContainer, revealItem } from "@/lib/motionVariants";
 function SkillDot({ skill }: { skill: SkillCategory["skills"][number] }) {
   const [open, setOpen] = useState(false);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("skills");
   const hasIncludes = skill.includes.length > 0;
 
   return (
@@ -30,7 +32,7 @@ function SkillDot({ skill }: { skill: SkillCategory["skills"][number] }) {
         whileTap={reduceMotion ? undefined : { scale: 0.96 }}
         transition={{ type: "spring", stiffness: 300, damping: 15 }}
         className="rounded-full border border-border bg-panel px-5 py-2.5 font-mono text-sm text-gray-300 transition-colors duration-300 hover:border-accent hover:text-accent hover:shadow-[0_0_20px_-2px_rgba(0,255,157,0.45)]"
-        aria-label={`${skill.name}${hasIncludes ? " — show details" : ""}`}
+        aria-label={hasIncludes ? t("showDetails", { name: skill.name }) : skill.name}
       >
         {skill.name}
       </motion.button>
@@ -54,19 +56,16 @@ function SkillDot({ skill }: { skill: SkillCategory["skills"][number] }) {
 
 export default function SkillsSection({ skillCategories }: { skillCategories: SkillCategory[] }) {
   const reduceMotion = useReducedMotion();
+  const t = useTranslations();
 
   return (
     <>
-      <SectionHeading>Skills</SectionHeading>
+      <SectionHeading>{t("skills.heading")}</SectionHeading>
       {skillCategories.length === 0 ? (
-        <p className="mt-8 font-mono text-sm text-gray-400">
-          (connect the backend to populate this from the database)
-        </p>
+        <p className="mt-8 font-mono text-sm text-gray-400">{t("common.noContent")}</p>
       ) : (
         <>
-          <p className="mt-3 font-mono text-xs text-gray-400">
-            Hover or tap a skill to see what it includes.
-          </p>
+          <p className="mt-3 font-mono text-xs text-gray-400">{t("skills.hint")}</p>
           <div className="mt-8 space-y-10">
             {skillCategories.map((category) => (
               <div key={category.id}>

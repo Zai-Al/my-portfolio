@@ -3,12 +3,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { FaLanguage, FaLightbulb, FaMapMarkerAlt, FaQuoteLeft } from "react-icons/fa";
 import type { IconType } from "react-icons";
 import { cardHover, revealContainer, revealItem } from "@/lib/motionVariants";
 import SectionHeading from "@/components/ui/SectionHeading";
 import type { SiteSettings } from "@/lib/types";
 
+// The level in brackets, e.g. "Arabic (Native)" or, on /ar, "العربية (اللغة الأم)".
 const PROFICIENCY: Record<string, number> = {
   native: 100,
   fluent: 90,
@@ -16,10 +18,25 @@ const PROFICIENCY: Record<string, number> = {
   intermediate: 55,
   conversational: 55,
   basic: 30,
+  "اللغة الأم": 100,
+  "لغة أم": 100,
+  طلاقة: 90,
+  بطلاقة: 90,
+  متقدم: 75,
+  متقدمة: 75,
+  متوسط: 55,
+  متوسطة: 55,
+  محادثة: 55,
+  مبتدئ: 30,
+  أساسي: 30,
+  أساسية: 30,
 };
 
 function proficiencyFor(label: string): number {
-  const match = label.match(/\(([^)]+)\)/)?.[1]?.toLowerCase();
+  const match = label
+    .match(/\(([^)]+)\)/)?.[1]
+    ?.trim()
+    .toLowerCase();
   if (match && PROFICIENCY[match] !== undefined) return PROFICIENCY[match];
   return 60;
 }
@@ -33,7 +50,7 @@ function LanguageBar({ label }: { label: string }) {
       <p className="font-mono text-sm text-gray-300">{label}</p>
       <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-border">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-accent to-aurora-teal"
+          className="h-full rounded-full bg-gradient-to-r from-accent to-aurora-teal rtl:bg-gradient-to-l"
           initial={reduceMotion ? { width: `${pct}%` } : { width: 0 }}
           whileInView={{ width: `${pct}%` }}
           viewport={{ once: true }}
@@ -85,23 +102,22 @@ function FactCard({
 
 export default function AboutIntro({ settings }: { settings: SiteSettings }) {
   const reduceMotion = useReducedMotion();
+  const t = useTranslations();
   const hasCurrently = !!(settings.location || settings.availability);
   const hasLanguages = settings.spokenLanguages.length > 0;
   const hasFacts = hasCurrently || hasLanguages || settings.softSkills.length > 0;
 
   return (
     <>
-      <SectionHeading>About me</SectionHeading>
+      <SectionHeading>{t("about.heading")}</SectionHeading>
       {settings.bio && <p className="mt-5 leading-relaxed text-gray-300">{settings.bio}</p>}
       {!settings.bio && (
-        <p className="mt-5 font-mono text-sm text-gray-400">
-          (connect the backend to populate this from the database)
-        </p>
+        <p className="mt-5 font-mono text-sm text-gray-400">{t("common.noContent")}</p>
       )}
 
       {settings.heroQuote && (
-        <blockquote className="mt-6 flex gap-3 border-l-2 border-accent pl-4 text-gray-300">
-          <FaQuoteLeft className="mt-1 shrink-0 text-accent/60" />
+        <blockquote className="mt-6 flex gap-3 border-s-2 border-accent ps-4 text-gray-300">
+          <FaQuoteLeft className="mt-1 shrink-0 text-accent/60 rtl:-scale-x-100" />
           <span className="italic">{settings.heroQuote}</span>
         </blockquote>
       )}
@@ -117,7 +133,7 @@ export default function AboutIntro({ settings }: { settings: SiteSettings }) {
           {hasCurrently && (
             <FactCard
               Icon={FaMapMarkerAlt}
-              title="Currently"
+              title={t("about.currently")}
               live
               className={hasLanguages ? "" : "md:col-span-2"}
             >
@@ -133,7 +149,7 @@ export default function AboutIntro({ settings }: { settings: SiteSettings }) {
           {hasLanguages && (
             <FactCard
               Icon={FaLanguage}
-              title="Languages"
+              title={t("about.languages")}
               className={hasCurrently ? "" : "md:col-span-2"}
             >
               <div className="space-y-3">
@@ -145,7 +161,7 @@ export default function AboutIntro({ settings }: { settings: SiteSettings }) {
           )}
 
           {settings.softSkills.length > 0 && (
-            <FactCard Icon={FaLightbulb} title="Beyond the stack" className="md:col-span-2">
+            <FactCard Icon={FaLightbulb} title={t("about.beyondStack")} className="md:col-span-2">
               <div className="flex flex-wrap gap-2">
                 {settings.softSkills.map((skill) => (
                   <span

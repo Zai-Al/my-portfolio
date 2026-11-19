@@ -11,25 +11,28 @@ import CompileRace from "@/components/games/CompileRace";
 import SegfaultSnake from "@/components/games/SegfaultSnake";
 import { getGuides, getSiteSettings } from "@/lib/api/public";
 import { starterQuestions } from "@/lib/site";
+import { localize } from "@/lib/i18n/localize";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
+// title = key in the "playground" strings. The games themselves stay in English.
 const GAMES = [
   {
-    title: "Conway's Game of Life",
+    title: "gameOfLife",
     file: "components/games/GameOfLife.tsx",
     node: <GameOfLife />,
   },
   {
-    title: "Debug the Bug",
+    title: "debugTheBug",
     file: "components/games/DebugTheBug.tsx",
     node: <DebugTheBug />,
   },
   {
-    title: "Compile Race",
+    title: "compileRace",
     file: "components/games/CompileRace.tsx",
     node: <CompileRace />,
   },
   {
-    title: "Segfault Snake",
+    title: "segfaultSnake",
     file: "components/games/SegfaultSnake.tsx",
     node: <SegfaultSnake />,
   },
@@ -37,8 +40,17 @@ const GAMES = [
 
 const REPO_BASE = "https://github.com/Zai-Al/my-portfolio/blob/main/frontend/";
 
-export default async function Playground() {
-  const [settings, guides] = await Promise.all([getSiteSettings(), getGuides()]);
+export async function generateMetadata({ params }: PageProps<"/[locale]/playground">) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "playground" });
+  return { title: t("title") };
+}
+
+export default async function Playground({ params }: PageProps<"/[locale]/playground">) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("playground");
+  const [settings, guides] = localize(await Promise.all([getSiteSettings(), getGuides()]), locale);
   return (
     <>
       <main className="relative min-h-screen px-6 py-16">
@@ -46,29 +58,29 @@ export default async function Playground() {
         <Sidebar variant="playground" />
         <div className="mx-auto max-w-3xl text-center">
           <SectionHeading as="h1" className="mx-auto">
-            Playground
+            {t("title")}
           </SectionHeading>
-          <p className="mt-2 font-mono text-sm text-gray-400">
-            nothing here is strict - just things worth clicking around in. there&apos;s also a
-            hidden command in the terminal on the home page.
-          </p>
+          <p className="mt-2 font-mono text-sm text-gray-400">{t("intro")}</p>
         </div>
 
         <div className="mt-12 flex flex-col items-center gap-20">
           {GAMES.map((game) => (
             <div key={game.title} className="flex w-full flex-col items-center gap-4">
               <div className="flex items-center gap-3">
-                <h2 className="font-display text-xl font-semibold">{game.title}</h2>
+                <h2 className="font-display text-xl font-semibold">{t(game.title)}</h2>
                 <a
                   href={`${REPO_BASE}${game.file}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-mono text-xs text-gray-400 underline hover:text-accent"
                 >
-                  view source
+                  {t("viewSource")}
                 </a>
               </div>
-              <div className="flex min-h-[340px] w-[440px] max-w-full flex-col items-center justify-start">
+              <div
+                dir="ltr"
+                className="flex min-h-[340px] w-[440px] max-w-full flex-col items-center justify-start"
+              >
                 {game.node}
               </div>
             </div>

@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { FaEnvelope, FaGithub, FaLinkedin, FaFilePdf, FaPaperPlane } from "react-icons/fa";
 import type { IconType } from "react-icons";
 import Modal from "@/components/ui/Modal";
@@ -51,6 +52,7 @@ function loadTurnstile(): Promise<Turnstile> {
 export default function ContactSection({ settings }: { settings: SiteSettings }) {
   const [formOpen, setFormOpen] = useState(false);
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("contact");
 
   return (
     <>
@@ -82,7 +84,12 @@ export default function ContactSection({ settings }: { settings: SiteSettings })
           />
         )}
         {settings.cvUrl && (
-          <ContactChannel Icon={FaFilePdf} label="CV" value="View my CV" href={settings.cvUrl} />
+          <ContactChannel
+            Icon={FaFilePdf}
+            label={t("cv")}
+            value={t("viewCv")}
+            href={settings.cvUrl}
+          />
         )}
         <motion.button
           onClick={() => setFormOpen(true)}
@@ -91,17 +98,19 @@ export default function ContactSection({ settings }: { settings: SiteSettings })
           whileTap={reduceMotion ? undefined : cardTap}
           className={`${cardClass} ${slotClass}`}
         >
-          <FaPaperPlane className="text-2xl text-accent transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          <p className="mt-2 font-display text-sm font-semibold">Message</p>
-          <p className="font-mono text-xs text-gray-400 group-hover:text-accent">Send a message</p>
+          <FaPaperPlane className="text-2xl text-accent transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" />
+          <p className="mt-2 font-display text-sm font-semibold">{t("message")}</p>
+          <p className="font-mono text-xs text-gray-400 group-hover:text-accent">
+            {t("sendMessage")}
+          </p>
         </motion.button>
       </motion.div>
 
       <Modal
         open={formOpen}
         onClose={() => setFormOpen(false)}
-        title="Send a message"
-        subtitle="I'll get back to you by email."
+        title={t("sendMessage")}
+        subtitle={t("formSubtitle")}
       >
         <ContactForm />
       </Modal>
@@ -134,7 +143,9 @@ function ContactChannel({
     >
       <Icon className="text-2xl text-accent transition-transform duration-300 group-hover:scale-110" />
       <p className="mt-2 font-display text-sm font-semibold">{label}</p>
-      <p className="break-all font-mono text-xs text-gray-400 group-hover:text-accent">{value}</p>
+      <p dir="auto" className="break-all font-mono text-xs text-gray-400 group-hover:text-accent">
+        {value}
+      </p>
     </motion.a>
   );
 }
@@ -146,6 +157,8 @@ function ContactChannel({
  */
 function RevealEmailChannel({ siteKey }: { siteKey: string }) {
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("contact");
+  const locale = useLocale();
   const box = useRef<HTMLDivElement>(null);
   const widget = useRef<{ turnstile: Turnstile; id: string } | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -174,6 +187,7 @@ function RevealEmailChannel({ siteKey }: { siteKey: string }) {
         sitekey: siteKey,
         action: "reveal-email",
         appearance: "interaction-only",
+        language: locale, // the checkbox (if shown) speaks the page's language
         theme: "dark",
         callback: async (token: string) => {
           try {
@@ -182,25 +196,21 @@ function RevealEmailChannel({ siteKey }: { siteKey: string }) {
             setEmail(result.email);
             setStatus("idle");
           } catch (e) {
-            fail(
-              e instanceof ApiError && e.status === 429
-                ? "Too many tries. Please wait a few minutes."
-                : "Couldn't verify. Tap to try again."
-            );
+            fail(e instanceof ApiError && e.status === 429 ? t("tooMany") : t("couldntVerify"));
           }
         },
-        "error-callback": () => fail("Couldn't verify. Tap to try again."),
-        "expired-callback": () => fail("The check expired. Tap to try again."),
+        "error-callback": () => fail(t("couldntVerify")),
+        "expired-callback": () => fail(t("expired")),
       });
       widget.current = { turnstile, id };
     } catch {
-      fail("Couldn't load the spam check. Use the message form instead.");
+      fail(t("loadFailed"));
     }
   }
 
   if (email) {
     return (
-      <ContactChannel Icon={FaEnvelope} label="Email" value={email} href={`mailto:${email}`} />
+      <ContactChannel Icon={FaEnvelope} label={t("email")} value={email} href={`mailto:${email}`} />
     );
   }
 
@@ -216,13 +226,9 @@ function RevealEmailChannel({ siteKey }: { siteKey: string }) {
         className={`${cardClass} h-full disabled:cursor-wait`}
       >
         <FaEnvelope className="text-2xl text-accent transition-transform duration-300 group-hover:scale-110" />
-        <p className="mt-2 font-display text-sm font-semibold">Email</p>
+        <p className="mt-2 font-display text-sm font-semibold">{t("email")}</p>
         <p className="font-mono text-xs text-gray-400 group-hover:text-accent">
-          {status === "checking"
-            ? "checking you're human…"
-            : status === "error"
-              ? error
-              : "Show email"}
+          {status === "checking" ? t("checking") : status === "error" ? error : t("showEmail")}
         </p>
       </motion.button>
       {/* Turnstile draws here only if it needs the visitor to tick a box. */}

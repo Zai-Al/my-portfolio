@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useContentChanges, type ContentChangeReason } from "@/lib/liveUpdates";
 
@@ -16,6 +17,7 @@ const NOTICE_MS = 3000;
  */
 export default function LiveUpdates() {
   const router = useRouter();
+  const t = useTranslations("common");
   const reduceMotion = useReducedMotion();
   const [, startTransition] = useTransition();
   const [showNotice, setShowNotice] = useState(false);
@@ -53,7 +55,8 @@ export default function LiveUpdates() {
             transition={{ duration: 0.2 }}
             className="rounded border border-accent/40 bg-void/90 px-3 py-1.5 font-mono text-xs text-accent shadow-lg backdrop-blur"
           >
-            <span aria-hidden="true">● </span>Updated just now
+            <span aria-hidden="true">● </span>
+            {t("updated")}
           </motion.p>
         )}
       </AnimatePresence>

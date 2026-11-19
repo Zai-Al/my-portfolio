@@ -123,6 +123,17 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(10),
                 QueueLimit = 0,
             }));
+    // Admin "translate to Arabic": admin-only already; this just keeps a stuck button (or a
+    // stolen session) from burning the Gemini free quota.
+    options.AddPolicy("translate", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+            }));
 });
 
 // --- Cloudflare Turnstile: proves a real browser before the email is given out ---

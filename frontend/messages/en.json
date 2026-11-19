@@ -1,0 +1,156 @@
+{
+  "common": {
+    "skipToContent": "Skip to content",
+    "present": "present",
+    "noContent": "(connect the backend to populate this from the database)",
+    "imageUnavailable": "Image unavailable",
+    "close": "Close",
+    "updated": "Updated just now",
+    "rights": "{year}{name}. All rights reserved."
+  },
+  "language": {
+    "switch": "عربي",
+    "switchLabel": "اقرأ الموقع بالعربية (Read the site in Arabic)"
+  },
+  "nav": {
+    "label": "Section navigation",
+    "home": "Home",
+    "about": "About",
+    "education": "Education",
+    "experience": "Experience",
+    "certifications": "Certifications",
+    "skills": "Skills",
+    "projects": "Projects",
+    "contact": "Contact",
+    "fun": "Just for fun",
+    "playground": "Playground"
+  },
+  "about": {
+    "heading": "About me",
+    "currently": "Currently",
+    "languages": "Languages",
+    "beyondStack": "Beyond the stack"
+  },
+  "education": {
+    "heading": "Education"
+  },
+  "experience": {
+    "heading": "Experience",
+    "technologies": "Technologies",
+    "view": "view",
+    "proofAlt": "Proof for {role} at {company}"
+  },
+  "certifications": {
+    "heading": "Certifications",
+    "viewCredential": "view credential",
+    "imageAlt": "{name} certificate",
+    "imageUnavailable": "Certificate image unavailable",
+    "credentialId": "Credential ID: {id}",
+    "verify": "verify credential →",
+    "noVerify": "No public verification link yet."
+  },
+  "skills": {
+    "heading": "Skills",
+    "hint": "Hover or tap a skill to see what it includes.",
+    "showDetails": "{name} — show details"
+  },
+  "projects": {
+    "heading": "Projects",
+    "viewDetails": "View details",
+    "enlarge": "Enlarge screenshot {n} of {total}",
+    "screenshotAlt": "{title} screenshot {n}",
+    "comingSoon": "Screenshots coming soon",
+    "previousShot": "Previous screenshot",
+    "nextShot": "Next screenshot",
+    "goToShot": "Go to screenshot {n}",
+    "keysHint": " · ← → keys · click to enlarge",
+    "myRole": "My role",
+    "highlights": "Highlights",
+    "viewRepo": "view repo →",
+    "viewDemo": "view demo →",
+    "liveDemo": "Live demo",
+    "demoInProgress": "Live demo is under progress — check back soon, or reach out for an early look.",
+    "project": "Project"
+  },
+  "contact": {
+    "heading": "Get in touch",
+    "lead": "Reach out directly through any of the channels below.",
+    "message": "Message",
+    "sendMessage": "Send a message",
+    "formSubtitle": "I'll get back to you by email.",
+    "cv": "CV",
+    "viewCv": "View my CV",
+    "email": "Email",
+    "showEmail": "Show email",
+    "checking": "checking you're human…",
+    "tooMany": "Too many tries. Please wait a few minutes.",
+    "couldntVerify": "Couldn't verify. Tap to try again.",
+    "expired": "The check expired. Tap to try again.",
+    "loadFailed": "Couldn't load the spam check. Use the message form instead."
+  },
+  "contactForm": {
+    "sent": "Message sent — thanks, I'll get back to you.",
+    "name": "name",
+    "email": "email",
+    "subject": "subject (optional)",
+    "message": "message",
+    "send": "send",
+    "sending": "sending...",
+    "waking": "Waking up the server… it sleeps when nobody's around, so the first message can take up to a minute. Please keep this page open.",
+    "limited": "Too many messages from this connection — please try again in a few minutes.",
+    "error": "Couldn't send — try again in a moment."
+  },
+  "chat": {
+    "askAbout": "Ask about {name}",
+    "askGuide": "Ask the AI guide",
+    "button": "Ask AI",
+    "close": "Close the AI guide",
+    "closeTitle": "Close (Esc)",
+    "escHint": "esc to close",
+    "tagline": "AI guide · answers from this portfolio",
+    "greeting": "Hi! I'm the AI guide. Ask me anything about {name} - experience, projects, skills, or how to use this site.",
+    "greetingNoName": "Hi! I'm the AI guide. Ask me anything - experience, projects, skills, or how to use this site.",
+    "noAnswer": "No answer came back - try asking again.",
+    "placeholder": "ask a question...",
+    "answering": "answering…",
+    "yourQuestion": "Your question",
+    "send": "Send",
+    "waking": "waking up the server... the first answer can take up to a minute",
+    "thinking": "thinking...",
+    "rateLimited": "Easy there - that's a lot of questions. Give it a minute and try again.",
+    "tooLong": "That question is too long - keep it under {max} characters.",
+    "unreachable": "Couldn't reach the AI right now - try again in a moment."
+  },
+  "terminal": {
+    "welcome": "Welcome. Type 'help' for commands, or just ask me a question.",
+    "help": "Available commands:\n  whoami          - who I am\n  skills          - what I work with\n  projects        - jump to projects\n  contact         - how to reach me\n  curl resume.pdf - download my resume\n  git log --stats - pull live GitHub stats\n  clear           - clear the terminal\n  help            - show this message\n\nNot a command? Just type a question - the AI guide\n(bottom-right) opens and answers it.",
+    "ariaLabel": "Terminal: type a command or ask a question",
+    "placeholder": "type a command or ask anything...",
+    "noCv": "No CV has been uploaded yet.",
+    "downloading": "Downloading my CV...",
+    "noGithub": "No GitHub profile is set yet.",
+    "githubError": "Couldn't reach the GitHub API right now.",
+    "scrollingProjects": "Scrolling to projects...",
+    "scrollingContact": "Scrolling to contact...",
+    "notFound": "command not found: {cmd}\nDid you mean '{suggestion}'? Press Enter to run it.",
+    "asking": "→ asking the AI guide… (it opened bottom-right ↘)",
+    "loadingProfile": "Still loading my profile. Try again in a moment.",
+    "more": "+{count} more",
+    "skillsHint": "Hover the tiles in the Skills section for details.",
+    "noSkills": "See the Skills section for what I work with."
+  },
+  "lightbox": {
+    "previous": "Previous screenshot",
+    "next": "Next screenshot",
+    "close": "Close"
+  },
+  "playground": {
+    "title": "Playground",
+    "intro": "nothing here is strict - just things worth clicking around in. there's also a hidden command in the terminal on the home page.",
+    "viewSource": "view source",
+    "gameOfLife": "Conway's Game of Life",
+    "debugTheBug": "Debug the Bug",
+    "compileRace": "Compile Race",
+    "segfaultSnake": "Segfault Snake"
+  }
+}

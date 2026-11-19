@@ -99,8 +99,11 @@ function TextFieldInput<T>({
   onChange: (raw: string) => void;
   wide: boolean;
 }) {
-  const inputClass =
-    "mt-1 w-full rounded border border-border bg-void px-2 py-1.5 font-mono text-sm text-white outline-none";
+  const inputClass = `mt-1 w-full rounded border bg-void px-2 py-1.5 text-sm text-white outline-none ${
+    field.arabic ? "border-aurora-purple/40 font-body" : "border-border font-mono"
+  }`;
+  // Arabic copies are typed right to left (and read by screen readers as Arabic).
+  const direction = field.arabic ? ({ dir: "rtl", lang: "ar" } as const) : {};
   const external = displayField(field.type, value);
   const [text, setText] = useState(external);
 
@@ -127,6 +130,7 @@ function TextFieldInput<T>({
           onChange={(e) => handle(e.target.value)}
           rows={field.type === "lines" ? 4 : 3}
           className={inputClass}
+          {...direction}
         />
       ) : (
         <input
@@ -134,6 +138,7 @@ function TextFieldInput<T>({
           value={text}
           onChange={(e) => handle(e.target.value)}
           className={inputClass}
+          {...direction}
         />
       )}
     </div>

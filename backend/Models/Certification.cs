@@ -15,4 +15,8 @@ public class Certification : IOrderedEntity
     public string? ImageUrl { get; set; } // certificate image shown in a popup
     public string Icon { get; set; } = "FaCertificate";
     public int SortOrder { get; set; }
+
+    // Arabic versions (shown on /ar; empty = fall back to the English field).
+    public string? NameAr { get; set; }
+    public string? IssuerAr { get; set; }
 }

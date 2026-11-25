@@ -52,6 +52,9 @@ jobs:
         run: npm run lint
       - name: Formatting
         run: npm run format:check
+      - name: Unit tests
+        # Vitest: the plain functions in lib/ (terminal matching, dates, texts, UI strings).
+        run: npm test
       - name: Type-check and build
         # No backend in CI: pages fall back to on-demand rendering (see lib/api/public.ts).
         run: npm run build

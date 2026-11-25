@@ -104,7 +104,7 @@ flowchart LR
 **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons, next-intl (English/Arabic, RTL)
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
 **Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth, Storage and Realtime, Google Gemini
-**Tooling:** xUnit + `WebApplicationFactory` (237 tests), Playwright + axe (frontend smoke and accessibility tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
+**Tooling:** xUnit + `WebApplicationFactory` (237 tests), Vitest (frontend unit tests), Playwright + axe (frontend smoke and accessibility tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 
 ## Repository layout
@@ -113,7 +113,7 @@ flowchart LR
 backend/    ASP.NET Core Web API (controllers, EF Core models and migrations, AI services)
 frontend/   Next.js app (public site, /playground, private /admin)
 tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge, hidden contact details, Arabic content and translation)
-.github/    CI (build, tests, lint, format, smoke tests, Docker build), keep-alive ping, Dependabot
+.github/    CI (build, unit tests, API tests, lint, format, smoke tests, Docker build), keep-alive ping, Dependabot
 ```
 
 Setup steps are in [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md).
@@ -123,7 +123,7 @@ Setup steps are in [backend/README.md](backend/README.md) and [frontend/README.m
 Every push and pull request runs:
 
 - **Backend:** build, the full test suite, and a Docker build of the production image
-- **Frontend:** ESLint, a Prettier check, and a type-checked production build
+- **Frontend:** ESLint, a Prettier check, unit tests (Vitest: terminal matching, dates, Arabic text and that every UI string exists in both languages), and a type-checked production build
 - **Smoke tests:** Playwright opens the built site in Chromium, against a mock API with fake content (no database, no AI), and checks the home page, terminal commands, the Arabic right-to-left layout, the AI guide and the project popup, plus an axe accessibility scan
 
 `main` is protected and only moves forward to commits that passed CI. GitHub's CodeQL scans the code for security issues, and Dependabot keeps dependencies up to date.

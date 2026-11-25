@@ -10,6 +10,8 @@ import DynamicIcon from "@/components/ui/DynamicIcon";
 import Lightbox from "@/components/ui/Lightbox";
 import Modal from "@/components/ui/Modal";
 import SafeImage from "@/components/ui/SafeImage";
+import { FaRobot } from "react-icons/fa";
+import { openAiGuide } from "@/lib/aiGuide";
 import type { Project } from "@/lib/types";
 import { cardHover, cardTap, revealContainer, revealItem } from "@/lib/motionVariants";
 
@@ -20,7 +22,14 @@ const isStorage = (url: string) => url.includes("/storage/v1/object/public/portf
 const REPO_SLUGS = new Set<string>(["portfolio"]);
 const DEMO_SLUGS = new Set(["failed-orders-ticketing", "quickpharma-plus"]);
 
-export default function ProjectsSection({ projects }: { projects: Project[] }) {
+export default function ProjectsSection({
+  projects,
+  ownerName,
+}: {
+  projects: Project[];
+  /** From SiteSettings: the first name goes into the "ask the AI guide" question. */
+  ownerName: string | null;
+}) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
@@ -314,6 +323,22 @@ export default function ProjectsSection({ projects }: { projects: Project[] }) {
                   {t("viewDemo")}
                 </button>
               ))}
+
+            {/* Hands a question about this project to the AI guide (one chat for the whole
+                site). The popup closes first: it sits above the chat panel. */}
+            <button
+              onClick={() => {
+                const firstName = ownerName?.trim().split(/\s+/)[0];
+                const question = firstName
+                  ? t("askQuestion", { title: active.title, name: firstName })
+                  : t("askQuestionNoName", { title: active.title });
+                closeProject();
+                openAiGuide(question);
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded border border-aurora-purple/60 px-5 py-2 font-mono text-sm text-aurora-purple transition-colors hover:bg-aurora-purple/10"
+            >
+              <FaRobot aria-hidden="true" /> {t("askAi")}
+            </button>
 
             {projects.length > 1 && (
               <div className="flex items-center justify-between gap-3 border-t border-border pt-4 font-mono text-xs">

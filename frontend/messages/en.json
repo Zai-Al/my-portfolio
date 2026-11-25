@@ -70,7 +70,10 @@
     "viewDemo": "view demo →",
     "liveDemo": "Live demo",
     "demoInProgress": "Live demo is under progress — check back soon, or reach out for an early look.",
-    "project": "Project"
+    "project": "Project",
+    "askAi": "ask the AI guide about this project",
+    "askQuestion": "Tell me more about the {title} project: what it does, how it was built, and what {name} did on it.",
+    "askQuestionNoName": "Tell me more about the {title} project: what it does and how it was built."
   },
   "contact": {
     "heading": "Get in touch",

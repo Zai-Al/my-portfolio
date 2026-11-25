@@ -111,7 +111,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
             <p className="mt-8 font-mono text-sm text-gray-400">{t("common.noContent")}</p>
           ) : (
             <div className="mt-8">
-              <ProjectsSection projects={projects} />
+              <ProjectsSection projects={projects} ownerName={settings.fullName} />
             </div>
           )}
         </ParallaxSection>

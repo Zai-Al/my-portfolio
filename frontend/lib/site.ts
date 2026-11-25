@@ -78,16 +78,22 @@ export function certsText(certs: Certification[], labels: { empty: string }): st
   if (!certs.length) return labels.empty;
   return certs
     .map((c) => {
-      const year = c.issueDate?.slice(0, 4);
-      return `${c.name}${c.issuer ? ` - ${c.issuer}` : ""}${/^\d{4}$/.test(year ?? "") ? ` (${year})` : ""}`;
+      const year = yearOf(c.issueDate);
+      return `${c.name}${c.issuer ? ` - ${c.issuer}` : ""}${year ? ` (${year})` : ""}`;
     })
     .join("\n");
 }
 
-/** "2023 – 2025" or "2025 – present" from API dates. */
+/** The year in a free-text date ("Jun 2026", "2026-06", "06/2026"), or null ("Present"). */
+export function yearOf(value: string | null | undefined): string | null {
+  return value?.match(/\d{4}/)?.[0] ?? null;
+}
+
+/** "2023 – 2025" or "2025 – present". An end date without a year ("Present") counts as now. */
 function yearRange(start: string, end: string | null, present: string): string {
-  const from = start?.slice(0, 4) ?? "";
-  const to = end ? end.slice(0, 4) : present;
+  const from = yearOf(start) ?? "";
+  const to = yearOf(end) ?? present;
+  if (!from) return to;
   return from === to ? from : `${from} – ${to}`;
 }
 

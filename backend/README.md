@@ -26,6 +26,8 @@ Tests live outside this folder (so they stay out of the Docker image):
 dotnet test ../tests/PortfolioApi.Tests
 ```
 
+Most tests use an in-memory database. The ones in `tests/PortfolioApi.Tests/Postgres/` (migrations, vector search, database rules) start a throwaway Postgres + pgvector container with Testcontainers, so they need Docker Desktop running. Without Docker they're skipped on your machine (the run says why); in CI they always run.
+
 ## Structure
 
 | Folder | What's in it |

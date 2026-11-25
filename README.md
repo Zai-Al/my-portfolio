@@ -29,7 +29,7 @@ Every piece of content on the site (experience, education, certifications, skill
 - **Private admin dashboard.** Password plus authenticator-app code (Supabase Auth, TOTP). The API itself checks the second factor, so a stolen password alone can't change anything.
 - **English and Arabic.** The whole site is also at `/ar`, right to left, with Arabic content from the database (each text field has an Arabic copy; empty ones fall back to English). The AI guide answers in the visitor's language, and the admin dashboard can fill the Arabic fields with a Gemini translation to review before saving.
 - **Interactive extras.** A working terminal (`help`, `whoami`, `skills`, `projects`, `git log --stats`, …), live GitHub stats, and a Playground page with four small browser games.
-- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, contact details hidden from scrapers behind Cloudflare Turnstile, and 237 automated API tests in CI.
+- **Built to be safe in public.** Per-IP rate limits, a strict Content Security Policy, deny-all row-level security on every table, contact details hidden from scrapers behind Cloudflare Turnstile, and 257 automated API tests in CI, 20 of them on a real Postgres + pgvector database.
 
 ## Architecture
 
@@ -104,7 +104,7 @@ flowchart LR
 **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion, supabase-js, react-icons, next-intl (English/Arabic, RTL)
 **Backend:** ASP.NET Core (.NET 10), Entity Framework Core 10, Npgsql, Pgvector, JWT bearer auth, rate limiting, health checks
 **Data and AI:** PostgreSQL on Supabase with pgvector, Supabase Auth, Storage and Realtime, Google Gemini
-**Tooling:** xUnit + `WebApplicationFactory` (237 tests), Vitest (frontend unit tests), Playwright + axe (frontend smoke and accessibility tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
+**Tooling:** xUnit + `WebApplicationFactory` (257 tests; Testcontainers runs the database tests on real Postgres + pgvector), Vitest (frontend unit tests), Playwright + axe (frontend smoke and accessibility tests), ESLint, Prettier, GitHub Actions, Dependabot, Docker
 **Hosting:** Vercel (frontend), Render (API, Docker), Supabase (database, auth, storage)
 
 ## Repository layout
@@ -112,7 +112,7 @@ flowchart LR
 ```
 backend/    ASP.NET Core Web API (controllers, EF Core models and migrations, AI services)
 frontend/   Next.js app (public site, /playground, private /admin)
-tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge, hidden contact details, Arabic content and translation)
+tests/      API integration tests (auth on every admin endpoint, reordering, AI knowledge, hidden contact details, Arabic content and translation) and Postgres tests (migrations, vector search, database rules)
 .github/    CI (build, unit tests, API tests, lint, format, smoke tests, Docker build), keep-alive ping, Dependabot
 ```
 
@@ -122,7 +122,7 @@ Setup steps are in [backend/README.md](backend/README.md) and [frontend/README.m
 
 Every push and pull request runs:
 
-- **Backend:** build, the full test suite, and a Docker build of the production image
+- **Backend:** build, the full test suite (including migrations, vector search and database rules on a throwaway Postgres + pgvector container), and a Docker build of the production image
 - **Frontend:** ESLint, a Prettier check, unit tests (Vitest: terminal matching, dates, Arabic text and that every UI string exists in both languages), and a type-checked production build
 - **Smoke tests:** Playwright opens the built site in Chromium, against a mock API with fake content (no database, no AI), and checks the home page, terminal commands, the Arabic right-to-left layout, the AI guide and the project popup, plus an axe accessibility scan
 

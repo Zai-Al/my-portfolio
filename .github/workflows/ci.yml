@@ -30,6 +30,7 @@ jobs:
       - name: Build API
         run: dotnet build backend/PortfolioApi.csproj -c Release
       - name: Run tests
+        # Includes the Postgres tests: Testcontainers starts pgvector/pgvector in the runner's Docker.
         run: dotnet test tests/PortfolioApi.Tests/PortfolioApi.Tests.csproj -c Release
       - name: Build the Render Docker image (not pushed)
         run: docker build backend

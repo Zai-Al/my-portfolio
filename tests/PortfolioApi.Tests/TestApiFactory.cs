@@ -43,12 +43,12 @@ public class TestApiFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            // Swap Postgres for an in-memory database.
+            // Swap the configured database for the test one.
             // (EF Core 9+ also registers the provider setup as IDbContextOptionsConfiguration.)
             services.RemoveAll<DbContextOptions<AppDbContext>>();
             services.RemoveAll<DbContextOptions>();
             services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
-            services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase(_databaseName));
+            services.AddDbContext<AppDbContext>(ConfigureDatabase);
 
             // Never call Cloudflare: a fake Turnstile that only accepts FakeTurnstile.ValidToken.
             services.RemoveAll<ITurnstileVerifier>();
@@ -72,6 +72,13 @@ public class TestApiFactory : WebApplicationFactory<Program>
             });
         });
     }
+
+    /// <summary>
+    /// The database the API uses: in memory here (fast, no Docker). PostgresApiFactory
+    /// overrides it with a real Postgres + pgvector container.
+    /// </summary>
+    protected virtual void ConfigureDatabase(DbContextOptionsBuilder options) =>
+        options.UseInMemoryDatabase(_databaseName);
 
     /// <summary>A Supabase-style access token. aal2 = password + authenticator code.</summary>
     public static string Token(string email, string aal = "aal2")

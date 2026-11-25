@@ -99,13 +99,20 @@ test("project popup hands a question to the AI guide", async ({ page }) => {
 });
 
 test("home page has no serious accessibility problems", async ({ page }) => {
+  // Reduced motion: sections appear at once instead of fading in, so axe checks the final
+  // colours, not text caught half-transparent mid-animation (a false contrast failure).
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
   const serious = results.violations.filter(
     (v) => v.impact === "serious" || v.impact === "critical"
   );
   expect(
-    serious.map((v) => `${v.id}: ${v.help} (${v.nodes.length} elements)`),
+    serious.flatMap((v) => [
+      `${v.id}: ${v.help}`,
+      ...v.nodes.map((n) => `  ${n.target.join(" ")}: ${n.failureSummary?.split("\n").at(-1)}`),
+    ]),
     "serious or critical axe violations"
   ).toEqual([]);
 });

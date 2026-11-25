@@ -19,6 +19,8 @@ npm run dev                  # http://localhost:3000
 
 Other scripts: `npm run lint`, `npm run format` / `format:check`, `npm run build`.
 
+Smoke tests: `npx playwright install chromium` once, then `npm run test:e2e`. It builds the site into `.next-e2e/` against a mock API with fake content (`e2e/mock-api.mjs`), so it never touches the real database or Gemini, and can run while `npm run dev` is open.
+
 ## Pages
 
 - `/`: home page. Hero with an interactive terminal, about, education, experience, certifications, skills, projects and contact. All content comes from the API.

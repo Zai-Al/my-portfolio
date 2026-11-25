@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Zainab Alawi. All rights reserved.
 #
 # Builds and tests both apps on every push to development/main and on pull requests,
-# so a broken build or an unlocked admin endpoint never reaches the live site.
+# so a broken build, a broken page or an unlocked admin endpoint never reaches the live site.
 
 name: CI
 
@@ -55,3 +55,32 @@ jobs:
       - name: Type-check and build
         # No backend in CI: pages fall back to on-demand rendering (see lib/api/public.ts).
         run: npm run build
+
+  e2e:
+    name: Frontend smoke tests (Playwright)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run smoke tests
+        # Builds the site against e2e/mock-api.mjs (fake content): no database, no Gemini.
+        run: npm run test:e2e
+      - name: Upload the test report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          retention-days: 7

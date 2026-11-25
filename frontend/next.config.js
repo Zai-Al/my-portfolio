@@ -75,6 +75,9 @@ const supabaseHost = (() => {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The smoke tests build into their own folder (playwright.config.ts), so a test run never
+  // overwrites the build in .next.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   reactStrictMode: true,
   poweredByHeader: false, // don't advertise "X-Powered-By: Next.js"
   images: {

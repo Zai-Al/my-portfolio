@@ -70,7 +70,14 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: personJsonLd(settings, locale) }}
         />
-        <Hero settings={settings} skillCategories={skillCategories} />
+        <Hero
+          settings={settings}
+          skillCategories={skillCategories}
+          projects={projects}
+          certifications={certifications}
+          experiences={experiences}
+          education={education}
+        />
 
         {/* About me */}
         <ParallaxSection id="about" speed={0.08} className="mx-auto max-w-4xl px-6 py-24">

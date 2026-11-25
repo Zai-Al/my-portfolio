@@ -5,8 +5,22 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import Terminal from "@/components/sections/Terminal";
-import { skillsText, whoamiText } from "@/lib/site";
-import type { SiteSettings, SkillCategory } from "@/lib/types";
+import {
+  certsText,
+  educationText,
+  experienceText,
+  projectsListText,
+  skillsText,
+  whoamiText,
+} from "@/lib/site";
+import type {
+  Certification,
+  Education,
+  Experience,
+  Project,
+  SiteSettings,
+  SkillCategory,
+} from "@/lib/types";
 
 /**
  * Home: name and headline centred above the terminal (the original layout), with a gentle
@@ -15,9 +29,17 @@ import type { SiteSettings, SkillCategory } from "@/lib/types";
 export default function Hero({
   settings,
   skillCategories,
+  projects,
+  certifications,
+  experiences,
+  education,
 }: {
   settings: SiteSettings;
   skillCategories: SkillCategory[];
+  projects: Project[];
+  certifications: Certification[];
+  experiences: Experience[];
+  education: Education[];
 }) {
   const reduceMotion = useReducedMotion();
   const t = useTranslations("terminal");
@@ -57,6 +79,20 @@ export default function Hero({
             hint: t("skillsHint"),
             empty: t("noSkills"),
           })}
+          projectsList={projectsListText(projects, {
+            hint: t("projectsHint"),
+            empty: t("noProjects"),
+          })}
+          certs={certsText(certifications, { empty: t("noCerts") })}
+          experience={experienceText(experiences, {
+            present: t("present"),
+            empty: t("noExperience"),
+          })}
+          education={educationText(education, {
+            present: t("present"),
+            empty: t("noEducation"),
+          })}
+          projects={projects.map(({ slug, title }) => ({ slug, title }))}
           className="w-full max-w-3xl"
         />
       </motion.div>

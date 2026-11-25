@@ -1,6 +1,14 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
-import type { Guide, SiteSettings, SkillCategory } from "@/lib/types";
+import type {
+  Certification,
+  Education,
+  Experience,
+  Guide,
+  Project,
+  SiteSettings,
+  SkillCategory,
+} from "@/lib/types";
 import { localePath } from "@/i18n/routing";
 
 /**
@@ -51,6 +59,63 @@ export function skillsText(
       return `${c.name}: ${names.join(", ")}${more}`;
     });
   return lines.length ? `${lines.join("\n")}\n\n${labels.hint}` : labels.empty;
+}
+
+/** Terminal `ls projects`: each project with its year and one-line summary, in display order. */
+export function projectsListText(
+  projects: Project[],
+  labels: { hint: string; empty: string }
+): string {
+  if (!projects.length) return labels.empty;
+  const lines = projects.map((p) =>
+    [`${p.title}${p.year ? ` (${p.year})` : ""}`, p.summary].filter(Boolean).join(" - ")
+  );
+  return `${lines.join("\n")}\n\n${labels.hint}`;
+}
+
+/** Terminal `cat certs`: each certification with its issuer and year, in display order. */
+export function certsText(certs: Certification[], labels: { empty: string }): string {
+  if (!certs.length) return labels.empty;
+  return certs
+    .map((c) => {
+      const year = c.issueDate?.slice(0, 4);
+      return `${c.name}${c.issuer ? ` - ${c.issuer}` : ""}${/^\d{4}$/.test(year ?? "") ? ` (${year})` : ""}`;
+    })
+    .join("\n");
+}
+
+/** "2023 – 2025" or "2025 – present" from API dates. */
+function yearRange(start: string, end: string | null, present: string): string {
+  const from = start?.slice(0, 4) ?? "";
+  const to = end ? end.slice(0, 4) : present;
+  return from === to ? from : `${from} – ${to}`;
+}
+
+/** Terminal `cat experience`: a short timeline, newest first as ordered in the admin. */
+export function experienceText(
+  items: Experience[],
+  labels: { present: string; empty: string }
+): string {
+  if (!items.length) return labels.empty;
+  return items
+    .map((e) => `${yearRange(e.startDate, e.endDate, labels.present)}  ${e.role} @ ${e.company}`)
+    .join("\n");
+}
+
+/** Terminal `cat education`: each degree with its years and awards. */
+export function educationText(
+  items: Education[],
+  labels: { present: string; empty: string }
+): string {
+  if (!items.length) return labels.empty;
+  return items
+    .map((e) =>
+      [
+        `${yearRange(e.startDate, e.endDate, labels.present)}  ${e.degree} - ${e.institution}`,
+        ...e.awards.map((a) => `  ★ ${a}`),
+      ].join("\n")
+    )
+    .join("\n");
 }
 
 /**

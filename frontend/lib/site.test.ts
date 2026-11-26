@@ -14,6 +14,7 @@ import {
   shortBio,
   siteDescription,
   skillsText,
+  sourceUrl,
   starterQuestions,
   whoamiText,
   yearOf,
@@ -264,5 +265,32 @@ describe("siteDescription (C2: what search results and link previews show)", () 
     const result = siteDescription(settings({ seoDescription: "word ".repeat(80) }));
     expect(result.length).toBeLessThanOrEqual(160);
     expect(result.endsWith("…")).toBe(true);
+  });
+});
+
+describe("sourceUrl (view source links, from Vercel's build-time repo details)", () => {
+  const vercel = {
+    VERCEL_GIT_PROVIDER: "github",
+    VERCEL_GIT_REPO_OWNER: "example",
+    VERCEL_GIT_REPO_SLUG: "site",
+    VERCEL_GIT_COMMIT_REF: "main",
+  };
+
+  it("links to the file on the deployed branch", () => {
+    expect(sourceUrl("frontend/components/games/Snake.tsx", vercel)).toBe(
+      "https://github.com/example/site/blob/main/frontend/components/games/Snake.tsx"
+    );
+  });
+
+  it("is null without repo details (local builds hide the link)", () => {
+    expect(sourceUrl("frontend/a.tsx", {})).toBeNull();
+    expect(sourceUrl("frontend/a.tsx", { ...vercel, VERCEL_GIT_PROVIDER: "gitlab" })).toBeNull();
+  });
+
+  it("falls back to main and escapes odd characters", () => {
+    const env = { ...vercel, VERCEL_GIT_COMMIT_REF: "" };
+    expect(sourceUrl("/frontend/app/[locale]/page.tsx", env)).toBe(
+      "https://github.com/example/site/blob/main/frontend/app/%5Blocale%5D/page.tsx"
+    );
   });
 });

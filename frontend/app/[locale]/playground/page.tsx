@@ -10,35 +10,34 @@ import DebugTheBug from "@/components/games/DebugTheBug";
 import CompileRace from "@/components/games/CompileRace";
 import SegfaultSnake from "@/components/games/SegfaultSnake";
 import { getGuides, getSiteSettings } from "@/lib/api/public";
-import { starterQuestions } from "@/lib/site";
+import { sourceUrl, starterQuestions } from "@/lib/site";
 import { localize } from "@/lib/i18n/localize";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 // title = key in the "playground" strings. The games themselves stay in English.
+// source = the file on GitHub (null in local builds, which hides "view source").
 const GAMES = [
   {
     title: "gameOfLife",
-    file: "components/games/GameOfLife.tsx",
+    source: sourceUrl("frontend/components/games/GameOfLife.tsx"),
     node: <GameOfLife />,
   },
   {
     title: "debugTheBug",
-    file: "components/games/DebugTheBug.tsx",
+    source: sourceUrl("frontend/components/games/DebugTheBug.tsx"),
     node: <DebugTheBug />,
   },
   {
     title: "compileRace",
-    file: "components/games/CompileRace.tsx",
+    source: sourceUrl("frontend/components/games/CompileRace.tsx"),
     node: <CompileRace />,
   },
   {
     title: "segfaultSnake",
-    file: "components/games/SegfaultSnake.tsx",
+    source: sourceUrl("frontend/components/games/SegfaultSnake.tsx"),
     node: <SegfaultSnake />,
   },
 ];
-
-const REPO_BASE = "https://github.com/Zai-Al/my-portfolio/blob/main/frontend/";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/playground">) {
   const { locale } = await params;
@@ -68,14 +67,16 @@ export default async function Playground({ params }: PageProps<"/[locale]/playgr
             <div key={game.title} className="flex w-full flex-col items-center gap-4">
               <div className="flex items-center gap-3">
                 <h2 className="font-display text-xl font-semibold">{t(game.title)}</h2>
-                <a
-                  href={`${REPO_BASE}${game.file}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-mono text-xs text-gray-400 underline hover:text-accent"
-                >
-                  {t("viewSource")}
-                </a>
+                {game.source && (
+                  <a
+                    href={game.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs text-gray-400 underline hover:text-accent"
+                  >
+                    {t("viewSource")}
+                  </a>
+                )}
               </div>
               <div
                 dir="ltr"

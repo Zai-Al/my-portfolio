@@ -23,6 +23,23 @@ export const SITE_URL = (
     : "http://localhost:3000")
 ).replace(/\/+$/, "");
 
+/**
+ * A file in this site's own source code on GitHub, e.g. sourceUrl("frontend/app/page.tsx"),
+ * or null when unknown. Built from the repo details Vercel sets at build time, so no link is
+ * written into the code; a local build has none and hides "view source" links.
+ */
+export function sourceUrl(
+  path: string,
+  env: Record<string, string | undefined> = process.env
+): string | null {
+  const { VERCEL_GIT_PROVIDER, VERCEL_GIT_REPO_OWNER, VERCEL_GIT_REPO_SLUG } = env;
+  if (VERCEL_GIT_PROVIDER !== "github" || !VERCEL_GIT_REPO_OWNER || !VERCEL_GIT_REPO_SLUG)
+    return null;
+  const ref = env.VERCEL_GIT_COMMIT_REF || "main";
+  const file = path.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  return `https://github.com/${VERCEL_GIT_REPO_OWNER}/${VERCEL_GIT_REPO_SLUG}/blob/${encodeURIComponent(ref)}/${file}`;
+}
+
 /** "Team project · Some University · 2025" (the year only when the context lacks it). */
 export function projectSubtitle(project: Project): string | undefined {
   const year = project.year && !project.context?.includes(project.year) ? project.year : null;

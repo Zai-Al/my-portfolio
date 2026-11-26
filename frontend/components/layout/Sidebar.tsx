@@ -43,10 +43,12 @@ const PROJECT = [
   { id: "fun", label: "fun", Icon: FaGamepad, href: "/playground" },
 ] as const;
 
-type Variant = "full" | "playground" | "project";
+// "other": the 404 and error pages (same links, none marked as the current page).
+type Variant = "full" | "playground" | "project" | "other";
 const PAGES = {
   playground: { items: PLAYGROUND, active: "fun" },
   project: { items: PROJECT, active: "projects" },
+  other: { items: PROJECT, active: "" },
 };
 
 export default function Sidebar({ variant = "full" }: { variant?: Variant }) {

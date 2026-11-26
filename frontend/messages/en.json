@@ -183,5 +183,17 @@
     "debugTheBug": "Debug the Bug",
     "compileRace": "Compile Race",
     "segfaultSnake": "Segfault Snake"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundCommand": "cd {path}",
+    "notFoundError": "zsh: no such file or directory: {path}",
+    "notFoundHint": "This page doesn't exist - the link may be old or have a typo.",
+    "errorCommand": "render page",
+    "errorError": "segmentation fault (core dumped)",
+    "errorHint": "Something went wrong loading this page. The server may be waking up (it sleeps when nobody visits) - try again in a few seconds.",
+    "retry": "try again",
+    "goHome": "cd ~ (home)",
+    "seeProjects": "ls projects"
   }
 }

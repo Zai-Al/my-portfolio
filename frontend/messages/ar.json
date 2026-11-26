@@ -183,5 +183,17 @@
     "debugTheBug": "اصطد الخطأ",
     "compileRace": "سباق الترجمة البرمجية",
     "segfaultSnake": "ثعبان Segfault"
+  },
+  "errors": {
+    "notFoundTitle": "الصفحة غير موجودة",
+    "notFoundCommand": "cd {path}",
+    "notFoundError": "zsh: no such file or directory: {path}",
+    "notFoundHint": "هذه الصفحة غير موجودة - ربما الرابط قديم أو فيه خطأ مطبعي.",
+    "errorCommand": "render page",
+    "errorError": "segmentation fault (core dumped)",
+    "errorHint": "حدث خطأ أثناء تحميل هذه الصفحة. قد يكون الخادم في طور التشغيل (يتوقف عندما لا يزوره أحد) - حاول مرة أخرى بعد ثوانٍ.",
+    "retry": "حاول مرة أخرى",
+    "goHome": "cd ~ (الرئيسية)",
+    "seeProjects": "ls projects (المشاريع)"
   }
 }

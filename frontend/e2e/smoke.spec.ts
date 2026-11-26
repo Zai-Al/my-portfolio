@@ -153,6 +153,20 @@ test("project page has structured data with a breadcrumb", async ({ page }) => {
   expect(project["@graph"][1]["@type"]).toBe("BreadcrumbList");
 });
 
+test("an unknown address gets the site's own 404 page, in the right language", async ({ page }) => {
+  const response = await page.goto("/some/old/link");
+  expect(response?.status()).toBe(404);
+  await expect(page).toHaveTitle("Page not found");
+  await expect(page.getByText("zsh: no such file or directory: /some/old/link")).toBeVisible();
+  await page.getByRole("link", { name: "cd ~ (home)" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Test Person" })).toBeVisible();
+
+  const arabic = await page.goto("/ar/xyz");
+  expect(arabic?.status()).toBe(404);
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByText("هذه الصفحة غير موجودة")).toBeVisible();
+});
+
 test("home page has no serious accessibility problems", async ({ page }) => {
   // Reduced motion: sections appear at once instead of fading in, so axe checks the final
   // colours, not text caught half-transparent mid-animation (a false contrast failure).

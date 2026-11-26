@@ -11,7 +11,7 @@ import ProjectDetails from "@/components/sections/ProjectDetails";
 import DynamicIcon from "@/components/ui/DynamicIcon";
 import { getGuides, getProjects, getSiteSettings } from "@/lib/api/public";
 import { localize } from "@/lib/i18n/localize";
-import { clip, projectPath, projectSubtitle, starterQuestions } from "@/lib/site";
+import { clip, projectJsonLd, projectPath, projectSubtitle, starterQuestions } from "@/lib/site";
 import { localePath } from "@/i18n/routing";
 
 // One page per project, for links on a CV or LinkedIn and for search engines. Built ahead
@@ -63,6 +63,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("projects");
+  const nav = await getTranslations("nav");
   const [projects, settings, guides] = localize(
     await Promise.all([getProjects(), getSiteSettings(), getGuides()]),
     locale
@@ -82,6 +83,16 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
       <main className="relative min-h-screen px-6 py-16 md:ps-20 xl:ps-6">
         <AuroraBackground />
         <Sidebar variant="project" />
+        {/* Structured data for search engines: the project and its breadcrumb trail. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: projectJsonLd(project, settings, locale, {
+              home: nav("home"),
+              projects: nav("projects"),
+            }),
+          }}
+        />
         <article className="mx-auto max-w-3xl">
           <a
             href={localePath(locale, "/#projects")}

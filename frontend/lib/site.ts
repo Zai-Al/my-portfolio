@@ -167,6 +167,56 @@ export function personJsonLd(s: SiteSettings, locale = "en"): string {
 }
 
 /**
+ * Structured data for a project's own page: the project as a creative work by the site's
+ * owner, plus a breadcrumb trail (Home › Projects › title) that search results can show.
+ * Repository links are left out on purpose: some projects keep a RepoUrl that isn't shown.
+ * Escaped like personJsonLd.
+ */
+export function projectJsonLd(
+  project: Project,
+  settings: SiteSettings,
+  locale: string,
+  labels: { home: string; projects: string }
+): string {
+  const absolute = (path: string) => `${SITE_URL}${path}`.replace(/\/$/, "");
+  const home = absolute(localePath(locale, "/"));
+  const page = absolute(projectPath(locale, project.slug));
+  const data = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CreativeWork",
+        "@id": `${page}#project`,
+        name: project.title,
+        description: clip(project.summary || project.description, 300) || undefined,
+        url: page,
+        inLanguage: locale,
+        keywords: project.tech.length ? project.tech.join(", ") : undefined,
+        dateCreated: yearOf(project.year) ?? undefined,
+        image: `${page}/opengraph-image`,
+        author: settings.fullName
+          ? { "@type": "Person", name: settings.fullName, url: home }
+          : undefined,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: labels.home, item: home },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: labels.projects,
+            item: absolute(localePath(locale, "/#projects")),
+          },
+          { "@type": "ListItem", position: 3, name: project.title, item: page },
+        ],
+      },
+    ],
+  };
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/**
  * Chat widget starter questions: the first few guide titles, in admin order (so
  * reordering guides in the admin portal changes them). Long titles are skipped.
  */

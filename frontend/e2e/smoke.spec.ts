@@ -133,6 +133,26 @@ test("project page has its own preview image", async ({ request }) => {
   expect(response.headers()["content-type"]).toBe("image/png");
 });
 
+test("sitemap lists every project page in both languages", async ({ request }) => {
+  const sitemap = await (await request.get("/sitemap.xml")).text();
+  for (const path of [
+    "/projects/sample-shop",
+    "/ar/projects/sample-shop",
+    "/projects/demo-tracker",
+  ])
+    expect(sitemap).toContain(`${path}</loc>`);
+});
+
+test("project page has structured data with a breadcrumb", async ({ page }) => {
+  await page.goto("/projects/sample-shop");
+  const graphs = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((scripts) => scripts.map((s) => JSON.parse(s.textContent ?? "{}")));
+  const project = graphs.find((g) => g["@graph"]);
+  expect(project["@graph"][0]).toMatchObject({ "@type": "CreativeWork", name: "Sample Shop" });
+  expect(project["@graph"][1]["@type"]).toBe("BreadcrumbList");
+});
+
 test("home page has no serious accessibility problems", async ({ page }) => {
   // Reduced motion: sections appear at once instead of fading in, so axe checks the final
   // colours, not text caught half-transparent mid-animation (a false contrast failure).

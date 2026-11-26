@@ -7,6 +7,7 @@ import {
   educationText,
   experienceText,
   personJsonLd,
+  projectJsonLd,
   projectPath,
   projectSubtitle,
   projectsListText,
@@ -199,5 +200,43 @@ describe("project page helpers", () => {
     const clipped = clip("word ".repeat(50), 30);
     expect(clipped.length).toBeLessThanOrEqual(30);
     expect(clipped).toMatch(/word…$/);
+  });
+});
+
+describe("projectJsonLd (structured data for a project page)", () => {
+  const project = as<Project>({
+    title: "Shop </script>",
+    slug: "shop",
+    summary: "Sells things.",
+    description: "",
+    tech: ["C#", "React"],
+    year: "2025",
+    repoUrl: "https://github.com/example/private",
+  });
+  const labels = { home: "Home", projects: "Projects" };
+
+  it("describes the project, its author and a breadcrumb trail", () => {
+    const json = projectJsonLd(project, settings({ fullName: "Test Person" }), "en", labels);
+    const [work, breadcrumb] = JSON.parse(json)["@graph"];
+    expect(work).toMatchObject({
+      "@type": "CreativeWork",
+      name: "Shop </script>",
+      keywords: "C#, React",
+      dateCreated: "2025",
+      author: { "@type": "Person", name: "Test Person" },
+    });
+    expect(work.url).toMatch(/\/projects\/shop$/);
+    expect(breadcrumb.itemListElement.map((i: { name: string }) => i.name)).toEqual([
+      "Home",
+      "Projects",
+      "Shop </script>",
+    ]);
+  });
+
+  it("never exposes the repository link, and can't close the script tag", () => {
+    const json = projectJsonLd(project, settings({}), "ar", labels);
+    expect(json).not.toContain("github.com");
+    expect(json).not.toContain("<");
+    expect(JSON.parse(json)["@graph"][0].url).toMatch(/\/ar\/projects\/shop$/);
   });
 });

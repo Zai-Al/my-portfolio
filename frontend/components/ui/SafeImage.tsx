@@ -4,6 +4,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { isMediaUrl } from "@/lib/media";
 
 /**
  * A picture through next/image (resized, WebP/AVIF, lazy-loaded), with a placeholder when
@@ -56,7 +57,7 @@ export default function SafeImage({
       height={height}
       sizes={sizes}
       priority={priority}
-      unoptimized={!src.includes("/storage/v1/object/public/portfolio-media/")}
+      unoptimized={!isMediaUrl(src)}
       className={className}
       style={{ height: "auto" }}
       onError={() => setFailed(src)}

@@ -2,6 +2,7 @@
 
 // next-intl: loads the UI strings for each language (i18n/request.ts).
 const withNextIntl = require("next-intl/plugin")();
+const { MEDIA_PATH } = require("./lib/media");
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -86,7 +87,7 @@ const nextConfig = {
           {
             protocol: "https",
             hostname: supabaseHost,
-            pathname: "/storage/v1/object/public/portfolio-media/**",
+            pathname: `${MEDIA_PATH}**`,
           },
         ]
       : [],

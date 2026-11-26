@@ -11,8 +11,7 @@ import Modal from "@/components/ui/Modal";
 import SafeImage from "@/components/ui/SafeImage";
 import { openAiGuide } from "@/lib/aiGuide";
 import type { Project } from "@/lib/types";
-
-const isStorage = (url: string) => url.includes("/storage/v1/object/public/portfolio-media/");
+import { isMediaUrl } from "@/lib/media";
 
 /** A labelled block of free text (Challenge, My role, What I learned); nothing when empty. */
 function TextSection({ label, text }: { label: string; text: string | null }) {
@@ -105,7 +104,7 @@ export default function ProjectDetails({
                   fill
                   loading="eager"
                   sizes="(max-width: 768px) 100vw, 720px"
-                  unoptimized={!isStorage(src)}
+                  unoptimized={!isMediaUrl(src)}
                   className={`object-contain ${i === slideIndex ? "opacity-100" : "opacity-0"}`}
                 />
               ))}

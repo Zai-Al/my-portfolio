@@ -22,14 +22,14 @@ html {
    green border) still wins; otherwise every clicked text field got this ring as well. */
 @layer base {
   :focus-visible {
-    outline: 2px solid #00ff9d;
+    outline: 2px solid theme("colors.accent");
     outline-offset: 2px;
   }
 }
 
 body {
-  background-color: #0a0e14;
-  color: #e8ecf1;
+  background-color: theme("colors.void");
+  color: theme("colors.ink");
   font-family: "Inter", "IBM Plex Sans Arabic", sans-serif;
 }
 
@@ -85,6 +85,6 @@ body {
 }
 
 ::selection {
-  background: #00ff9d;
-  color: #0a0e14;
+  background: theme("colors.accent");
+  color: theme("colors.void");
 }

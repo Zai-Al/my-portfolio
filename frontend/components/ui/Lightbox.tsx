@@ -9,8 +9,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { useMounted } from "@/lib/useMounted";
-
-const isStorage = (url: string) => url.includes("/storage/v1/object/public/portfolio-media/");
+import { isMediaUrl } from "@/lib/media";
 
 /**
  * One picture as large as the screen allows. Esc, ✕ or a click outside the picture close
@@ -106,7 +105,7 @@ export default function Lightbox({
                 fill
                 loading="eager"
                 sizes="100vw"
-                unoptimized={!isStorage(src)}
+                unoptimized={!isMediaUrl(src)}
                 className={`object-contain ${i === index ? "opacity-100" : "opacity-0"}`}
               />
             ))}

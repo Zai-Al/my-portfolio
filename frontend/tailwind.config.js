@@ -1,21 +1,13 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
+const { colors } = require("./lib/theme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      colors: {
-        void: "#0a0e14", // base background
-        panel: "#12161c", // card/panel surface
-        border: "#2a2f3a",
-        accent: "#00ff9d", // terminal green — used sparingly
-        aurora: {
-          teal: "#1fd1a3",
-          purple: "#7c6cff",
-          blue: "#3ea6ff",
-        },
-      },
+      colors,
       fontFamily: {
         // IBM Plex Sans Arabic fills in the Arabic letters on /ar (the others have none).
         display: ["Space Grotesk", "IBM Plex Sans Arabic", "sans-serif"],

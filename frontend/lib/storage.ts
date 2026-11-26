@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
+import { MEDIA_BUCKET } from "./media";
 import { supabase } from "./supabaseClient";
 
 // Supabase Storage bucket for the site's files. Reading is public; uploading needs the
 // admin signed in with password + authenticator code (bucket policies in Supabase).
-export const MEDIA_BUCKET = "portfolio-media";
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // matches the bucket's limit
 export const IMAGE_TYPES = "image/png,image/jpeg,image/webp,image/gif,image/avif";
 export const PDF_TYPE = "application/pdf";
@@ -43,7 +43,7 @@ export async function uploadMedia(file: File, folder: string): Promise<string> {
     if (/row-level security|unauthorized|403/i.test(msg))
       throw new Error("Upload refused: log out and back in with your authenticator code.");
     if (/bucket not found/i.test(msg))
-      throw new Error("The portfolio-media bucket doesn't exist yet (Step 3.3 setup SQL).");
+      throw new Error(`The ${MEDIA_BUCKET} bucket doesn't exist yet (Step 3.3 setup SQL).`);
     if (/mime type|not supported/i.test(msg))
       throw new Error(
         `"${file.name}": only images (PNG, JPG, WebP, GIF, AVIF) and PDF are allowed.`

@@ -21,9 +21,9 @@ public class Project : IOrderedEntity
     public string? DemoNotes { get; set; } // e.g. demo login instructions
     public string? Year { get; set; }
     public bool Featured { get; set; }
-    /// <summary>Show the "view repo" button (when RepoUrl is set). Off = the URL stays private to the AI guide.</summary>
+    /// <summary>Show the "view repo" button (when RepoUrl is set). Off = the URL stays in the admin only.</summary>
     public bool ShowRepo { get; set; }
-    /// <summary>Show the "view demo" button (a link when DemoUrl is set, else the "coming soon" note).</summary>
+    /// <summary>Show the "view demo" button (a link when DemoUrl is set, else the "coming soon" note). Off = the URL stays in the admin only.</summary>
     public bool ShowDemo { get; set; }
     /// <summary>Case study: the problem the project solved (optional).</summary>
     public string? Challenge { get; set; }
@@ -41,4 +41,18 @@ public class Project : IOrderedEntity
     public string? DemoNotesAr { get; set; }
     public string? ChallengeAr { get; set; }
     public string? LearnedAr { get; set; }
+
+    /// <summary>The repo link visitors and the AI guide may see: null unless "show repo" is ticked.</summary>
+    public string? PublicRepoUrl() => ShowRepo ? RepoUrl : null;
+
+    /// <summary>The demo link visitors and the AI guide may see: null unless "show demo" is ticked.</summary>
+    public string? PublicDemoUrl() => ShowDemo ? DemoUrl : null;
+
+    /// <summary>Blanks the links whose "show" box is off. Only call on an untracked copy.</summary>
+    public Project WithHiddenLinksRemoved()
+    {
+        RepoUrl = PublicRepoUrl();
+        DemoUrl = PublicDemoUrl();
+        return this;
+    }
 }

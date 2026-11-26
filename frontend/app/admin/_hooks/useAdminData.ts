@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
 import { useCallback, useEffect, useState } from "react";
-import { adminGet, getFullSiteSettings, getMessages, getSystemLog } from "@/lib/api/admin";
+import { adminList, getFullSiteSettings, getMessages, getSystemLog } from "@/lib/api/admin";
 import type {
   Certification,
   ContactMessage,
@@ -34,8 +34,8 @@ export function useAdminData(token: string, enabled = true) {
 
   const refresh = useCallback(() => {
     // A failed load keeps the previous data on screen; saving shows its own errors.
-    const load = <T>(path: string, set: (v: T) => void) =>
-      adminGet<T>(path)
+    const load = <T>(basePath: string, set: (v: T[]) => void) =>
+      adminList<T>(basePath, token)
         .then(set)
         .catch(() => {});
     load("/api/experiences", setExperiences);

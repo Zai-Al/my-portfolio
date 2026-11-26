@@ -11,6 +11,9 @@ public class ProjectsController : OrderedCrudController<Project>
 {
     public ProjectsController(AppDbContext db) : base(db) { }
 
+    // A link whose "show" box is off stays out of the public API, not just off the page.
+    protected override Project ForPublic(Project p) => p.WithHiddenLinksRemoved();
+
     // Same slug (it's the project's address, #project-<slug>) or same title.
     protected override Func<Project, Project, bool>? IsDuplicate => (a, b) =>
         Same(a.Slug, b.Slug) || Same(a.Title, b.Title);

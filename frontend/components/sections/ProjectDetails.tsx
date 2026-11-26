@@ -198,8 +198,8 @@ export default function ProjectDetails({
         </div>
       )}
 
-      {/* The buttons follow the admin's checkboxes. A RepoUrl without "show" stays private to
-          the AI guide (team or client repos). */}
+      {/* The buttons follow the admin's checkboxes. The public API already leaves out a link
+          whose box is off (team or client repos), so the checks here are a second guard. */}
       {project.showRepo && project.repoUrl && (
         <a
           href={project.repoUrl}

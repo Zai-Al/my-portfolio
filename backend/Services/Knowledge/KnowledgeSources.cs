@@ -109,8 +109,9 @@ public static class KnowledgeSources
                 Field("What I learned", p.Learned),
                 Bullets(p.Highlights),
                 List("Tech", p.Tech),
-                Field("Source code", p.RepoUrl),
-                Field("Live demo", p.DemoUrl),
+                // Only links the admin chose to show; a hidden repo is mentioned, never linked.
+                Field("Source code", p.PublicRepoUrl() ?? (string.IsNullOrWhiteSpace(p.RepoUrl) ? null : "private (not shared publicly)")),
+                Field("Live demo", p.PublicDemoUrl()),
                 Field("Demo notes", p.DemoNotes),
                 p.Screenshots.Count > 0 ? $"Screenshots: {p.Screenshots.Count}, shown in the project's details popup." : null)));
 

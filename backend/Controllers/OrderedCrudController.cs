@@ -54,17 +54,32 @@ public abstract class OrderedCrudController<T> : ControllerBase where T : class,
                 statusCode: StatusCodes.Status409Conflict);
     }
 
+    /// <summary>
+    /// What visitors may see of a row. Override to blank fields the admin chose to keep off the
+    /// site (rows are read untracked, so changing them never touches the database).
+    /// </summary>
+    protected virtual T ForPublic(T entity) => entity;
+
+    private Task<List<T>> LoadAllAsync() =>
+        Set.AsNoTracking().OrderBy(e => e.SortOrder).ThenBy(e => e.Id).ToListAsync();
+
     [HttpGet]
     [AllowAnonymous] // the site reads its content without signing in
     public virtual async Task<IActionResult> GetAll() =>
-        Ok(await Set.AsNoTracking().OrderBy(e => e.SortOrder).ThenBy(e => e.Id).ToListAsync());
+        Ok((await LoadAllAsync()).Select(ForPublic));
+
+    // Protected - every field, for the admin forms (saving sends the whole row back, so it
+    // must start from the full one or hidden fields would be wiped).
+    [HttpGet("full")]
+    [Authorize(Policy = "AdminOnly")]
+    public virtual async Task<IActionResult> GetAllFull() => Ok(await LoadAllAsync());
 
     [HttpGet("{id:int}")]
     [AllowAnonymous]
     public virtual async Task<IActionResult> GetById(int id)
     {
         var entity = await Set.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
-        return entity is null ? NotFound() : Ok(entity);
+        return entity is null ? NotFound() : Ok(ForPublic(entity));
     }
 
     [HttpPost]

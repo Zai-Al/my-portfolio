@@ -6,8 +6,12 @@
 import type { ContactMessage, SiteSettings, SystemLogEntry } from "@/lib/types";
 import { request } from "./http";
 
-/** Reads any list or record (public endpoints, but the admin wants errors, not fallbacks). */
-export const adminGet = <T>(path: string) => request<T>(path, { init: { cache: "no-store" } });
+/**
+ * A content table with every field (GET <basePath>/full). The public list leaves out what the
+ * admin chose to hide, and saving sends the whole row back, so the forms must start from this.
+ */
+export const adminList = <T>(basePath: string, token: string) =>
+  request<T[]>(`${basePath}/full`, { token, init: { cache: "no-store" } });
 
 export const adminCreate = (path: string, token: string, body: unknown) =>
   request(path, { method: "POST", token, body });

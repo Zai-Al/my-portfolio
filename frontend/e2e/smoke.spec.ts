@@ -98,6 +98,41 @@ test("project popup hands a question to the AI guide", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("each project has its own page, linked from the home page", async ({ page }) => {
+  await page.goto("/");
+  // The card title links to the page; so does the popup.
+  await page.getByRole("link", { name: "Sample Shop" }).click();
+  await expect(page).toHaveURL(/\/projects\/sample-shop$/);
+  await expect(page).toHaveTitle("Sample Shop · Test Person");
+  await expect(page.getByRole("heading", { level: 1, name: "Sample Shop" })).toBeVisible();
+  await expect(page.getByText("Built the sample.")).toBeVisible(); // My role, from ProjectDetails
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/projects\/sample-shop$/
+  );
+
+  // Next project (with two projects, previous and next are the same one), then back.
+  await page.getByRole("navigation", { name: "More projects" }).getByRole("link").last().click();
+  await expect(page).toHaveURL(/\/projects\/demo-tracker$/);
+  await page.getByRole("link", { name: /all projects/ }).click();
+  await expect(page).toHaveURL(/\/#projects$/);
+});
+
+test("project page works in Arabic, and an unknown project is a 404", async ({ page }) => {
+  await page.goto("/ar/projects/sample-shop");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("heading", { level: 1, name: "Sample Shop" })).toBeVisible();
+
+  const response = await page.goto("/projects/no-such-project");
+  expect(response?.status()).toBe(404);
+});
+
+test("project page has its own preview image", async ({ request }) => {
+  const response = await request.get("/projects/sample-shop/opengraph-image");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toBe("image/png");
+});
+
 test("home page has no serious accessibility problems", async ({ page }) => {
   // Reduced motion: sections appear at once instead of fading in, so axe checks the final
   // colours, not text caught half-transparent mid-animation (a false contrast failure).

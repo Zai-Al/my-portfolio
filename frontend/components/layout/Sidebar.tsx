@@ -36,14 +36,28 @@ const PLAYGROUND = [
   { id: "fun", label: "playground", Icon: FaGamepad, href: "/playground" },
 ] as const;
 
-export default function Sidebar({ variant = "full" }: { variant?: "full" | "playground" }) {
+// On a project's own page: home, all projects (Projects shown as current), playground.
+const PROJECT = [
+  { id: "home", label: "home", Icon: FaHome, href: "/" },
+  { id: "projects", label: "projects", Icon: FaProjectDiagram, href: "/#projects" },
+  { id: "fun", label: "fun", Icon: FaGamepad, href: "/playground" },
+] as const;
+
+type Variant = "full" | "playground" | "project";
+const PAGES = {
+  playground: { items: PLAYGROUND, active: "fun" },
+  project: { items: PROJECT, active: "projects" },
+};
+
+export default function Sidebar({ variant = "full" }: { variant?: Variant }) {
   const t = useTranslations("nav");
   const locale = useLocale();
-  const [active, setActive] = useState(variant === "playground" ? "fun" : "home");
-  const sections = variant === "playground" ? PLAYGROUND : SECTIONS;
+  const page = variant === "full" ? null : PAGES[variant];
+  const [active, setActive] = useState<string>(page?.active ?? "home");
+  const sections = page?.items ?? SECTIONS;
 
   useEffect(() => {
-    if (variant === "playground") return;
+    if (variant !== "full") return;
     const elements = SECTIONS.map((s) => document.getElementById(s.id)).filter(
       (el): el is HTMLElement => el !== null
     );
@@ -78,7 +92,7 @@ export default function Sidebar({ variant = "full" }: { variant?: "full" | "play
             key={id}
             href={href}
             aria-label={label}
-            aria-current={isActive ? (variant === "playground" ? "page" : "location") : undefined}
+            aria-current={isActive ? (variant === "full" ? "location" : "page") : undefined}
             className={`group relative flex items-center rounded-full p-2 transition-colors sm:p-3 ${
               isActive
                 ? "bg-accent/20 text-accent"

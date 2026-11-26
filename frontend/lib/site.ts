@@ -23,6 +23,26 @@ export const SITE_URL = (
     : "http://localhost:3000")
 ).replace(/\/+$/, "");
 
+/** "Senior Project · Bahrain Polytechnic · 2025" (the year only when the context lacks it). */
+export function projectSubtitle(project: Project): string | undefined {
+  const year = project.year && !project.context?.includes(project.year) ? project.year : null;
+  return [project.context, year].filter(Boolean).join(" · ") || undefined;
+}
+
+/** A project's own page, in the given language: /projects/<slug> or /ar/projects/<slug>. */
+export function projectPath(locale: string, slug: string): string {
+  return localePath(locale, `/projects/${encodeURIComponent(slug)}`);
+}
+
+/** Text shortened to fit a search result or link preview, cut between words with "…". */
+export function clip(text: string, max = 160): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
 /** First sentence of the bio, shortened to fit a search result (about 160 characters). */
 export function shortBio(settings: SiteSettings, max = 160): string {
   const bio = (settings.bio ?? "").trim();

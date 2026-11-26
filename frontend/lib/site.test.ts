@@ -3,9 +3,12 @@
 import { describe, expect, it } from "vitest";
 import {
   certsText,
+  clip,
   educationText,
   experienceText,
   personJsonLd,
+  projectPath,
+  projectSubtitle,
   projectsListText,
   shortBio,
   skillsText,
@@ -172,5 +175,29 @@ describe("personJsonLd (structured data)", () => {
   it("links the Arabic page for Arabic", () => {
     const data = JSON.parse(personJsonLd(settings({ fullName: "A" }), "ar"));
     expect(data.url).toMatch(/\/ar$/);
+  });
+});
+
+describe("project page helpers", () => {
+  it("builds the page address in each language", () => {
+    expect(projectPath("en", "rentops")).toBe("/projects/rentops");
+    expect(projectPath("ar", "rentops")).toBe("/ar/projects/rentops");
+  });
+
+  it("adds the year to the subtitle only when the context doesn't already say it", () => {
+    expect(projectSubtitle(as<Project>({ context: "Senior Project", year: "2025" }))).toBe(
+      "Senior Project · 2025"
+    );
+    expect(projectSubtitle(as<Project>({ context: "Team project · 2024", year: "2024" }))).toBe(
+      "Team project · 2024"
+    );
+    expect(projectSubtitle(as<Project>({ context: null, year: null }))).toBeUndefined();
+  });
+
+  it("clips long text between words", () => {
+    expect(clip("  short   text ")).toBe("short text");
+    const clipped = clip("word ".repeat(50), 30);
+    expect(clipped.length).toBeLessThanOrEqual(30);
+    expect(clipped).toMatch(/word…$/);
   });
 });

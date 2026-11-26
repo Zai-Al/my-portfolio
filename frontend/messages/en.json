@@ -73,7 +73,10 @@
     "project": "Project",
     "askAi": "ask the AI guide about this project",
     "askQuestion": "Tell me more about the {title} project: what it does, how it was built, and what {name} did on it.",
-    "askQuestionNoName": "Tell me more about the {title} project: what it does and how it was built."
+    "askQuestionNoName": "Tell me more about the {title} project: what it does and how it was built.",
+    "openPage": "open this project as its own page ↗",
+    "allProjects": "all projects",
+    "moreProjects": "More projects"
   },
   "contact": {
     "heading": "Get in touch",

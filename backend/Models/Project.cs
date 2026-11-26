@@ -21,6 +21,14 @@ public class Project : IOrderedEntity
     public string? DemoNotes { get; set; } // e.g. demo login instructions
     public string? Year { get; set; }
     public bool Featured { get; set; }
+    /// <summary>Show the "view repo" button (when RepoUrl is set). Off = the URL stays private to the AI guide.</summary>
+    public bool ShowRepo { get; set; }
+    /// <summary>Show the "view demo" button (a link when DemoUrl is set, else the "coming soon" note).</summary>
+    public bool ShowDemo { get; set; }
+    /// <summary>Case study: the problem the project solved (optional).</summary>
+    public string? Challenge { get; set; }
+    /// <summary>Case study: what I took away from it (optional).</summary>
+    public string? Learned { get; set; }
     public int SortOrder { get; set; }
 
     // Arabic versions (shown on /ar; empty = fall back to the English field).
@@ -31,4 +39,6 @@ public class Project : IOrderedEntity
     public string? MyRoleAr { get; set; }
     public List<string> HighlightsAr { get; set; } = new();
     public string? DemoNotesAr { get; set; }
+    public string? ChallengeAr { get; set; }
+    public string? LearnedAr { get; set; }
 }

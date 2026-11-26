@@ -22,6 +22,11 @@ public class SiteSettings
     public string? HeroQuote { get; set; }
     public List<string> SoftSkills { get; set; } = new();
     public List<string> SpokenLanguages { get; set; } = new();
+    /// <summary>
+    /// What search results and link previews show (about 160 characters). Empty = the first
+    /// sentence of the bio, as before.
+    /// </summary>
+    public string? SeoDescription { get; set; }
 
     // Arabic versions (shown on /ar; empty = fall back to the English field).
     public string? FullNameAr { get; set; }
@@ -32,6 +37,7 @@ public class SiteSettings
     public string? HeroQuoteAr { get; set; }
     public List<string> SoftSkillsAr { get; set; } = new();
     public List<string> SpokenLanguagesAr { get; set; } = new();
+    public string? SeoDescriptionAr { get; set; }
 
     /// <summary>
     /// Not stored. The public read leaves Email and Phone out (spam bots scrape them) and sets

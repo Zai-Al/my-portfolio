@@ -29,6 +29,7 @@ import AdminNav from "./AdminNav";
 import AiKnowledgePanel from "./AiKnowledgePanel";
 import CrudSection from "./CrudSection";
 import Inbox from "./Inbox";
+import SystemLog from "./SystemLog";
 import ProfileForm from "./ProfileForm";
 import ServerWakeNotice from "./ServerWakeNotice";
 import SkillsAdmin from "./SkillsAdmin";
@@ -200,6 +201,7 @@ export default function AdminDashboard({
               )}
 
               {page === "inbox" && <Inbox {...crud} messages={data.messages} />}
+              {page === "system-log" && <SystemLog {...crud} entries={data.systemLog} />}
             </div>
           )}
         </div>

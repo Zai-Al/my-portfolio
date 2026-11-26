@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
     public DbSet<SiteSettings> SiteSettings => Set<SiteSettings>();
     public DbSet<KnowledgeChunk> KnowledgeChunks => Set<KnowledgeChunk>();
+    public DbSet<SystemLogEntry> SystemLog => Set<SystemLogEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +51,15 @@ public class AppDbContext : DbContext
             // Cosine-distance search (<=>) for retrieval.
             if (Database.IsNpgsql())
                 e.HasIndex(k => k.Embedding).HasMethod("hnsw").HasOperators("vector_cosine_ops");
+        });
+
+        modelBuilder.Entity<SystemLogEntry>(e =>
+        {
+            e.ToTable("SystemLog");
+            // The writer finds an existing problem by this, to count a repeat.
+            e.HasIndex(x => x.Fingerprint).IsUnique();
+            // The admin list and the clean-up sort by when a problem last happened.
+            e.HasIndex(x => x.LastSeen);
         });
 
         // SiteSettings is a single row with a fixed id.

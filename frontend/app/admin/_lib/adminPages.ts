@@ -3,6 +3,7 @@
 import type { IconType } from "react-icons";
 import {
   FaBriefcase,
+  FaClipboardList,
   FaGraduationCap,
   FaInbox,
   FaLayerGroup,
@@ -13,7 +14,14 @@ import {
 
 // --- Side menu: one page per group of related content ---
 export type AdminPageId =
-  "profile" | "experience" | "education" | "skills" | "projects" | "chatbot" | "inbox";
+  | "profile"
+  | "experience"
+  | "education"
+  | "skills"
+  | "projects"
+  | "chatbot"
+  | "inbox"
+  | "system-log";
 
 export const ADMIN_PAGES: { id: AdminPageId; label: string; hint: string; Icon: IconType }[] = [
   {
@@ -53,4 +61,10 @@ export const ADMIN_PAGES: { id: AdminPageId; label: string; hint: string; Icon: 
     Icon: FaRobot,
   },
   { id: "inbox", label: "Inbox", hint: "Messages sent through the contact form.", Icon: FaInbox },
+  {
+    id: "system-log",
+    label: "System log",
+    hint: "Problems the API logged (Gemini, Turnstile, crashes), one row per problem with how often it happened.",
+    Icon: FaClipboardList,
+  },
 ];

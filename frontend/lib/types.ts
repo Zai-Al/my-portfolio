@@ -93,6 +93,14 @@ export type Project = {
   demoNotes: string | null;
   year: string | null;
   featured: boolean;
+  /** Show the "view repo" button (when repoUrl is set). */
+  showRepo: boolean;
+  /** Show the "view demo" button (a link when demoUrl is set, else the "coming soon" note). */
+  showDemo: boolean;
+  /** Case study: the problem the project solved. */
+  challenge: string | null;
+  /** Case study: what I took away from it. */
+  learned: string | null;
   sortOrder: number;
   titleAr: string | null;
   summaryAr: string | null;
@@ -101,6 +109,8 @@ export type Project = {
   myRoleAr: string | null;
   highlightsAr: string[];
   demoNotesAr: string | null;
+  challengeAr: string | null;
+  learnedAr: string | null;
 };
 
 export type Guide = {
@@ -140,6 +150,8 @@ export type SiteSettings = {
   heroQuote: string | null;
   softSkills: string[];
   spokenLanguages: string[];
+  /** What search results and link previews show; empty = the first sentence of the bio. */
+  seoDescription: string | null;
   // Arabic versions, shown on /ar (null / empty = the English field is shown).
   fullNameAr: string | null;
   headlineAr: string | null;
@@ -149,6 +161,7 @@ export type SiteSettings = {
   heroQuoteAr: string | null;
   softSkillsAr: string[];
   spokenLanguagesAr: string[];
+  seoDescriptionAr: string | null;
   /** Set by the API: an email exists and can be revealed after the spam check. */
   hasEmail: boolean;
 };
@@ -169,6 +182,7 @@ export const emptySiteSettings: SiteSettings = {
   heroQuote: null,
   softSkills: [],
   spokenLanguages: [],
+  seoDescription: null,
   fullNameAr: null,
   headlineAr: null,
   bioAr: null,
@@ -177,5 +191,20 @@ export const emptySiteSettings: SiteSettings = {
   heroQuoteAr: null,
   softSkillsAr: [],
   spokenLanguagesAr: [],
+  seoDescriptionAr: null,
   hasEmail: false,
+};
+
+/** One distinct problem the API logged (admin System log). Repeats only bump count / lastSeen. */
+export type SystemLogEntry = {
+  id: number;
+  level: "Warning" | "Error" | "Critical";
+  source: string;
+  message: string;
+  exceptionType: string | null;
+  stackTrace: string | null;
+  count: number;
+  firstSeen: string;
+  lastSeen: string;
+  resolved: boolean;
 };

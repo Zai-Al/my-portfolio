@@ -40,6 +40,10 @@ public class AuthorizationTests : IClassFixture<TestApiFactory>
         yield return new object[] { "DELETE", "/api/contact/999" };
         yield return new object[] { "POST", "/api/knowledge/reindex" };
         yield return new object[] { "GET", "/api/knowledge/status" };
+        yield return new object[] { "GET", "/api/system-log" };
+        yield return new object[] { "PATCH", "/api/system-log/999" };
+        yield return new object[] { "DELETE", "/api/system-log/999" };
+        yield return new object[] { "DELETE", "/api/system-log/resolved" };
     }
 
     public static IEnumerable<object[]> PublicReads()

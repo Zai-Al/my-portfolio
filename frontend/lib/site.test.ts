@@ -12,6 +12,7 @@ import {
   projectSubtitle,
   projectsListText,
   shortBio,
+  siteDescription,
   skillsText,
   starterQuestions,
   whoamiText,
@@ -238,5 +239,30 @@ describe("projectJsonLd (structured data for a project page)", () => {
     expect(json).not.toContain("github.com");
     expect(json).not.toContain("<");
     expect(JSON.parse(json)["@graph"][0].url).toMatch(/\/ar\/projects\/shop$/);
+  });
+});
+
+describe("siteDescription (C2: what search results and link previews show)", () => {
+  it("uses the SEO description when it's filled in", () => {
+    expect(
+      siteDescription(
+        settings({ seoDescription: "  Builds web apps.  ", bio: "Bio first. Second." })
+      )
+    ).toBe("Builds web apps.");
+  });
+
+  it("falls back to the first sentence of the bio when it's empty", () => {
+    expect(siteDescription(settings({ seoDescription: "   ", bio: "Bio first. Second." }))).toBe(
+      "Bio first."
+    );
+    expect(siteDescription(settings({ seoDescription: null, bio: "Bio first. Second." }))).toBe(
+      "Bio first."
+    );
+  });
+
+  it("shortens a long SEO description to fit", () => {
+    const result = siteDescription(settings({ seoDescription: "word ".repeat(80) }));
+    expect(result.length).toBeLessThanOrEqual(160);
+    expect(result.endsWith("…")).toBe(true);
   });
 });

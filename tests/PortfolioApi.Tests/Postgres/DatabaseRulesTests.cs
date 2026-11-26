@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PortfolioApi.Models;
+using PortfolioApi.Services.SystemLog;
 
 namespace PortfolioApi.Tests.Postgres;
 
@@ -56,5 +57,47 @@ public class DatabaseRulesTests(PostgresFixture postgres)
         await db.SkillCategories.Where(c => c.Id == category.Id).ExecuteDeleteAsync();
 
         Assert.Equal(0, await db.Skills.CountAsync());
+    }
+
+    [SkippableFact]
+    public async Task System_log_repeats_stay_one_row_on_Postgres()
+    {
+        Skip.If(postgres.Unavailable is not null, postgres.Unavailable);
+        var connectionString = await postgres.CreateMigratedDatabaseAsync();
+        var problem = new LogEvent("Error", "Src", "Boom {Id}", "Boom 1", "System.Exception", "stack", DateTime.UtcNow);
+
+        // Two separate saves (two batches from the writer), as in production.
+        await using (var db = PostgresFixture.CreateContext(connectionString))
+            await SystemLogStore.SaveAsync(db, [problem], default);
+        await using (var db = PostgresFixture.CreateContext(connectionString))
+            await SystemLogStore.SaveAsync(db, [problem with { Message = "Boom 2" }], default);
+
+        await using var check = PostgresFixture.CreateContext(connectionString);
+        var row = Assert.Single(await check.SystemLog.ToListAsync());
+        Assert.Equal(2, row.Count);
+        Assert.Equal("Boom 2", row.Message);
+    }
+
+    [SkippableFact]
+    public async Task Projects_saved_by_older_code_get_the_buttons_switched_off()
+    {
+        Skip.If(postgres.Unavailable is not null, postgres.Unavailable);
+        var connectionString = await postgres.CreateMigratedDatabaseAsync();
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        // The live site's current code doesn't know the new columns; its inserts must still work.
+        await using var insert = new NpgsqlCommand("""
+            INSERT INTO "Projects" ("Title", "Slug", "Summary", "Description", "Highlights", "Tech",
+                "Screenshots", "Icon", "Featured", "SortOrder", "HighlightsAr")
+            VALUES ('Old', 'old', '', '', '{}', '{}', '{}', 'FaProjectDiagram', false, 0, '{}')
+            """, conn);
+        await insert.ExecuteNonQueryAsync();
+
+        await using var db = PostgresFixture.CreateContext(connectionString);
+        var project = await db.Projects.SingleAsync();
+        Assert.False(project.ShowRepo);
+        Assert.False(project.ShowDemo);
+        Assert.Null(project.Challenge);
     }
 }

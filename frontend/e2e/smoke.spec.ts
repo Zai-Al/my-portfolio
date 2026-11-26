@@ -167,6 +167,34 @@ test("an unknown address gets the site's own 404 page, in the right language", a
   await expect(page.getByText("هذه الصفحة غير موجودة")).toBeVisible();
 });
 
+test("the admin's switches decide the Repo button, and the case study shows", async ({ page }) => {
+  await page.goto("/projects/sample-shop");
+  await expect(page.getByRole("link", { name: "view repo →" })).toHaveAttribute(
+    "href",
+    "https://github.com/example/sample-shop"
+  );
+  await expect(page.getByText("The challenge")).toBeVisible();
+  await expect(page.getByText("Checkout kept timing out.")).toBeVisible();
+  await expect(page.getByText("What I learned")).toBeVisible();
+  await expect(page.getByText("Measure before optimising.")).toBeVisible();
+
+  // Demo Tracker has a repo URL but "show" is off, and no case study.
+  await page.goto("/projects/demo-tracker");
+  await expect(page.getByRole("heading", { level: 1, name: "Demo Tracker" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "view repo →" })).toHaveCount(0);
+  await expect(page.getByText("The challenge")).toHaveCount(0);
+});
+
+test("the SEO description is what search results and link previews get", async ({ page }) => {
+  await page.goto("/");
+  const description = "Test Person builds sample apps for automated tests.";
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", description);
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+    "content",
+    description
+  );
+});
+
 test("home page has no serious accessibility problems", async ({ page }) => {
   // Reduced motion: sections appear at once instead of fading in, so axe checks the final
   // colours, not text caught half-transparent mid-animation (a false contrast failure).

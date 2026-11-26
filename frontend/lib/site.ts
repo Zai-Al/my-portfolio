@@ -51,6 +51,15 @@ export function shortBio(settings: SiteSettings, max = 160): string {
   return first.length <= max ? first : `${first.slice(0, max - 1).trimEnd()}…`;
 }
 
+/**
+ * The site's description for search results and link previews: the SEO description from
+ * the admin when it's filled in (shortened if it runs long), else the first sentence of the bio.
+ */
+export function siteDescription(settings: SiteSettings, max = 160): string {
+  const seo = settings.seoDescription?.trim();
+  return seo ? clip(seo, max) : shortBio(settings, max);
+}
+
 /** Terminal `whoami`: name, headline, first line of the bio, where and how I work. */
 export function whoamiText(s: SiteSettings, loading: string): string {
   const lines = [
@@ -155,7 +164,7 @@ export function personJsonLd(s: SiteSettings, locale = "en"): string {
     "@type": "Person",
     name: s.fullName || undefined,
     jobTitle: s.headline || undefined,
-    description: s.bio ? shortBio(s, 300) : undefined,
+    description: s.seoDescription?.trim() || s.bio ? siteDescription(s, 300) : undefined,
     url: `${SITE_URL}${localePath(locale, "/")}`.replace(/\/$/, ""),
     address: s.location ? { "@type": "PostalAddress", addressCountry: s.location } : undefined,
     knowsLanguage: s.spokenLanguages.length

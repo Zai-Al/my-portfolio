@@ -12,10 +12,37 @@ import type {
   Guide,
   Project,
   Skill,
+  SystemLogEntry,
 } from "@/lib/types";
 import type { SearchConfig } from "./search";
 
 const ALL = { value: "", label: "All" };
+
+export const SYSTEM_LOG_SEARCH: SearchConfig<SystemLogEntry> = {
+  label: "problems",
+  fields: [
+    { key: "message", label: "message", text: (e) => e.message },
+    { key: "source", label: "source", text: (e) => e.source },
+  ],
+  chips: [
+    {
+      key: "status",
+      options: [ALL, { value: "open", label: "Open" }, { value: "resolved", label: "Resolved" }],
+      test: (e, v) => (v === "open" ? !e.resolved : e.resolved),
+    },
+    {
+      key: "level",
+      options: [
+        ALL,
+        { value: "Warning", label: "Warnings" },
+        { value: "Error", label: "Errors" },
+        { value: "Critical", label: "Critical" },
+      ],
+      test: (e, v) => e.level === v,
+    },
+  ],
+  date: (e) => e.lastSeen,
+};
 
 export const EXPERIENCE_SEARCH: SearchConfig<Experience> = {
   label: "experience",

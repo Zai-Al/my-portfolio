@@ -9,6 +9,7 @@ using PortfolioApi.Data;
 using PortfolioApi.Health;
 using PortfolioApi.Services.Knowledge;
 using PortfolioApi.Services.Gemini;
+using PortfolioApi.Services.SystemLog;
 using PortfolioApi.Services.Turnstile;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -155,6 +156,13 @@ builder.Services.AddHttpClient<IGeminiClient, GeminiClient>(client => client.Tim
 builder.Services.AddScoped<KnowledgeIndexer>();
 builder.Services.AddScoped<KnowledgeRetriever>();
 builder.Services.AddHostedService<KnowledgeIndexWorker>();
+
+// --- System log: every Warning or worse, from anywhere in the API, saved in the background
+// as one row per distinct problem and shown in the admin (Services/SystemLog). ---
+var systemLogQueue = new SystemLogQueue();
+builder.Services.AddSingleton(systemLogQueue);
+builder.Logging.AddProvider(new SystemLogProvider(systemLogQueue));
+builder.Services.AddHostedService<SystemLogWriter>();
 
 // --- HSTS: browsers only talk to the API over HTTPS (2 years). Added to HTTPS responses
 // outside Development; localhost is never included. ---

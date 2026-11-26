@@ -14,10 +14,16 @@ import type { Project } from "@/lib/types";
 
 const isStorage = (url: string) => url.includes("/storage/v1/object/public/portfolio-media/");
 
-// Projects whose Repo button is shown (when their RepoUrl is set). Others keep their RepoUrl
-// in the database (the AI guide can still mention it) but show no button.
-const REPO_SLUGS = new Set<string>(["portfolio"]);
-const DEMO_SLUGS = new Set(["failed-orders-ticketing", "quickpharma-plus"]);
+/** A labelled block of free text (Challenge, My role, What I learned); nothing when empty. */
+function TextSection({ label, text }: { label: string; text: string | null }) {
+  if (!text?.trim()) return null;
+  return (
+    <div>
+      <h4 className="font-mono text-xs uppercase tracking-wide text-gray-400">{label}</h4>
+      <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-gray-300">{text}</p>
+    </div>
+  );
+}
 
 /**
  * Everything about one project: screenshots (with ←/→ keys and a zoomed view), description,
@@ -154,14 +160,9 @@ export default function ProjectDetails({
         {project.description || project.summary}
       </p>
 
-      {project.myRole && (
-        <div>
-          <h4 className="font-mono text-xs uppercase tracking-wide text-gray-400">{t("myRole")}</h4>
-          <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-gray-300">
-            {project.myRole}
-          </p>
-        </div>
-      )}
+      {/* Read as a case study: the problem, what I did, the results, what I took away. */}
+      <TextSection label={t("challenge")} text={project.challenge} />
+      <TextSection label={t("myRole")} text={project.myRole} />
 
       {project.highlights.length > 0 && (
         <div>
@@ -182,6 +183,8 @@ export default function ProjectDetails({
         </div>
       )}
 
+      <TextSection label={t("learned")} text={project.learned} />
+
       {project.tech.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {project.tech.map((tech) => (
@@ -195,7 +198,9 @@ export default function ProjectDetails({
         </div>
       )}
 
-      {REPO_SLUGS.has(project.slug) && project.repoUrl && (
+      {/* The buttons follow the admin's checkboxes. A RepoUrl without "show" stays private to
+          the AI guide (team or client repos). */}
+      {project.showRepo && project.repoUrl && (
         <a
           href={project.repoUrl}
           target="_blank"
@@ -205,7 +210,7 @@ export default function ProjectDetails({
           {t("viewRepo")}
         </a>
       )}
-      {DEMO_SLUGS.has(project.slug) &&
+      {project.showDemo &&
         (project.demoUrl ? (
           <a
             href={project.demoUrl}

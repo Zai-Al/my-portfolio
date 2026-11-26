@@ -63,6 +63,18 @@ public class MigrationTests(PostgresFixture postgres)
         Assert.Equal("extensions", extensionSchema);
     }
 
+    [SkippableFact]
+    public async Task The_system_log_table_has_row_level_security_on()
+    {
+        Skip.If(postgres.Unavailable is not null, postgres.Unavailable);
+        await using var conn = new NpgsqlConnection(await postgres.CreateMigratedDatabaseAsync());
+        await conn.OpenAsync();
+
+        // Deny-all, like every table: Supabase's public keys can't read the log.
+        var rls = await Scalar(conn, "SELECT relrowsecurity FROM pg_class WHERE relname = 'SystemLog'");
+        Assert.Equal("True", rls);
+    }
+
     private static async Task<string?> Scalar(NpgsqlConnection conn, string sql)
     {
         await using var cmd = new NpgsqlCommand(sql, conn);

@@ -76,7 +76,9 @@
     "askQuestionNoName": "Tell me more about the {title} project: what it does and how it was built.",
     "openPage": "open this project as its own page ↗",
     "allProjects": "all projects",
-    "moreProjects": "More projects"
+    "moreProjects": "More projects",
+    "challenge": "The challenge",
+    "learned": "What I learned"
   },
   "contact": {
     "heading": "Get in touch",

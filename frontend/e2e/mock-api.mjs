@@ -24,6 +24,7 @@ const settings = {
   heroQuote: "Tests first.",
   softSkills: ["Testing"],
   spokenLanguages: ["English"],
+  seoDescription: "Test Person builds sample apps for automated tests.",
   fullNameAr: "شخص تجريبي",
   headlineAr: null,
   bioAr: "محتوى تجريبي للاختبارات فقط.",
@@ -32,10 +33,11 @@ const settings = {
   heroQuoteAr: null,
   softSkillsAr: [],
   spokenLanguagesAr: [],
+  seoDescriptionAr: null,
   hasEmail: false,
 };
 
-const project = (id, slug, title, year) => ({
+const project = (id, slug, title, year, extra = {}) => ({
   id,
   title,
   slug,
@@ -60,13 +62,29 @@ const project = (id, slug, title, year) => ({
   myRoleAr: null,
   highlightsAr: [],
   demoNotesAr: null,
+  showRepo: false,
+  showDemo: false,
+  challenge: null,
+  learned: null,
+  challengeAr: null,
+  learnedAr: null,
+  ...extra,
 });
 
 const routes = {
   "/api/site-settings": settings,
   "/api/projects": [
-    project(1, "sample-shop", "Sample Shop", "2025"),
-    project(2, "demo-tracker", "Demo Tracker", "2024"),
+    // Repo button on, and a case study.
+    project(1, "sample-shop", "Sample Shop", "2025", {
+      repoUrl: "https://github.com/example/sample-shop",
+      showRepo: true,
+      challenge: "Checkout kept timing out.",
+      learned: "Measure before optimising.",
+    }),
+    // A repo URL without "show": the button must stay hidden.
+    project(2, "demo-tracker", "Demo Tracker", "2024", {
+      repoUrl: "https://github.com/example/private",
+    }),
   ],
   // Free-text dates, as in the real database ("Jun 2024", "Present").
   "/api/experiences": [

@@ -29,8 +29,9 @@ export default defineConfig({
       reuseExistingServer: !isCI,
     },
     {
-      // Built into its own folder, so it never clashes with a running `npm run dev`.
-      command: `npm run build && npx next start -p ${SITE_PORT}`,
+      // Built into its own folder, so it never clashes with a running `npm run dev`. Its fetch
+      // cache is cleared first: otherwise a new build reuses old answers from the mock API.
+      command: `rm -rf .next-e2e/cache && npm run build && npx next start -p ${SITE_PORT}`,
       url: `http://localhost:${SITE_PORT}`,
       env: {
         NEXT_PUBLIC_API_URL: `http://localhost:${API_PORT}`,

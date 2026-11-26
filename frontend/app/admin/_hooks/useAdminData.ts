@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Zainab Alawi. All rights reserved.
 
 import { useCallback, useEffect, useState } from "react";
-import { adminGet, getFullSiteSettings, getMessages } from "@/lib/api/admin";
+import { adminGet, getFullSiteSettings, getMessages, getSystemLog } from "@/lib/api/admin";
 import type {
   Certification,
   ContactMessage,
@@ -12,6 +12,7 @@ import type {
   SiteSettings,
   Skill,
   SkillCategory,
+  SystemLogEntry,
 } from "@/lib/types";
 import { emptySiteSettings } from "@/lib/types";
 
@@ -28,6 +29,7 @@ export function useAdminData(token: string, enabled = true) {
   const [education, setEducation] = useState<Education[]>([]);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [systemLog, setSystemLog] = useState<SystemLogEntry[]>([]);
   const [settings, setSettings] = useState<SiteSettings>(emptySiteSettings);
 
   const refresh = useCallback(() => {
@@ -50,6 +52,9 @@ export function useAdminData(token: string, enabled = true) {
     getMessages(token)
       .then(setMessages)
       .catch(() => {});
+    getSystemLog(token)
+      .then(setSystemLog)
+      .catch(() => {});
   }, [token]);
 
   useEffect(() => {
@@ -65,6 +70,7 @@ export function useAdminData(token: string, enabled = true) {
     education,
     guides,
     messages,
+    systemLog,
     settings,
     setSettings,
     refresh,

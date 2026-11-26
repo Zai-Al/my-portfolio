@@ -327,6 +327,12 @@ namespace PortfolioApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Challenge")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChallengeAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("Context")
                         .HasColumnType("text");
 
@@ -364,6 +370,12 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Learned")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LearnedAr")
+                        .HasColumnType("text");
+
                     b.Property<string>("MyRole")
                         .HasColumnType("text");
 
@@ -376,6 +388,12 @@ namespace PortfolioApi.Migrations
                     b.PrimitiveCollection<List<string>>("Screenshots")
                         .IsRequired()
                         .HasColumnType("text[]");
+
+                    b.Property<bool>("ShowDemo")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShowRepo")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -472,6 +490,12 @@ namespace PortfolioApi.Migrations
                     b.Property<string>("ProfileImageUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("SeoDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SeoDescriptionAr")
+                        .HasColumnType("text");
+
                     b.PrimitiveCollection<List<string>>("SoftSkills")
                         .IsRequired()
                         .HasColumnType("text[]");
@@ -558,6 +582,64 @@ namespace PortfolioApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SkillCategories");
+                });
+
+            modelBuilder.Entity("PortfolioApi.Models.SystemLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ExceptionType")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("FirstSeen")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("LastSeen")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("Resolved")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("StackTrace")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Fingerprint")
+                        .IsUnique();
+
+                    b.HasIndex("LastSeen");
+
+                    b.ToTable("SystemLog", (string)null);
                 });
 
             modelBuilder.Entity("PortfolioApi.Models.Skill", b =>

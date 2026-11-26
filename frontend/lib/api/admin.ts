@@ -3,7 +3,7 @@
 // Admin-only calls. Each needs the Supabase access token (password + authenticator code);
 // the API rejects anything else with 401/403. All of them throw ApiError on failure.
 
-import type { ContactMessage, SiteSettings } from "@/lib/types";
+import type { ContactMessage, SiteSettings, SystemLogEntry } from "@/lib/types";
 import { request } from "./http";
 
 /** Reads any list or record (public endpoints, but the admin wants errors, not fallbacks). */
@@ -23,6 +23,10 @@ export const adminReorder = (basePath: string, token: string, ids: number[]) =>
 
 export const getMessages = (token: string) =>
   request<ContactMessage[]>("/api/contact", { token, init: { cache: "no-store" } });
+
+/** The System log: problems the API logged, open ones first. */
+export const getSystemLog = (token: string) =>
+  request<SystemLogEntry[]>("/api/system-log", { token, init: { cache: "no-store" } });
 
 /** The full settings, email and phone included (the public read leaves them out). */
 export const getFullSiteSettings = (token: string) =>

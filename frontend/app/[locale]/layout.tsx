@@ -6,7 +6,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { getSiteSettings } from "@/lib/api/public";
 import { localize } from "@/lib/i18n/localize";
-import { SITE_URL, shortBio } from "@/lib/site";
+import { SITE_URL, siteDescription } from "@/lib/site";
 import { isRtl, localePath, routing } from "@/i18n/routing";
 import Monitoring from "@/components/layout/Monitoring";
 import LanguageSwitch from "@/components/layout/LanguageSwitch";
@@ -24,7 +24,8 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const s = localize(await getSiteSettings(), locale);
   const name = s.fullName || "Portfolio";
   const title = s.headline ? `${name} — ${s.headline}` : name;
-  const description = shortBio(s);
+  // The admin's SEO description, else the first sentence of the bio.
+  const description = siteDescription(s);
   const url = localePath(locale, "/");
   return {
     metadataBase: new URL(SITE_URL),

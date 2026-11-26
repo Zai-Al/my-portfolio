@@ -139,7 +139,7 @@ public static class KnowledgeSources
         return chunks;
     }
 
-    /// <summary>"Projects section → QuickPharma+ → View details": the place the AI should point to.</summary>
+    /// <summary>"Projects section → Sample Shop → View details": the place the AI should point to.</summary>
     public static string? WhereOnSite(KnowledgeChunk c) => c.SourceType switch
     {
         Profile => "About section",

@@ -43,10 +43,10 @@ public class KnowledgeTests : IClassFixture<TestApiFactory>
     public void Citation_marker_is_hidden_and_parsed_even_when_split_across_pieces()
     {
         var filter = new CitationFilter();
-        var shown = string.Concat(new[] { "I built ", "QuickPharma+.\n[", "[2, 5", "]]" }.Select(filter.Push));
+        var shown = string.Concat(new[] { "I built ", "Sample Shop.\n[", "[2, 5", "]]" }.Select(filter.Push));
         var (rest, cited) = filter.Finish();
 
-        Assert.Equal("I built QuickPharma+.\n", shown + rest);
+        Assert.Equal("I built Sample Shop.\n", shown + rest);
         Assert.Equal([2, 5], cited);
     }
 

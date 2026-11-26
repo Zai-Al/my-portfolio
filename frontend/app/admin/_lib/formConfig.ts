@@ -29,7 +29,7 @@ const arabic = <T>(
   type: "text" | "textarea" | "list" | "lines"
 ): FieldConfig<T> => ({ key, label: `${label} · عربي`, type, arabic: true });
 
-/** Upload folder per project, e.g. "projects/rentops" (before a slug is set: "projects/unsorted"). */
+/** Upload folder per project, e.g. "projects/sample-shop" (before a slug is set: "projects/unsorted"). */
 const projectFolder = (p: Partial<Project>) =>
   `projects/${
     (p.slug ?? "")
@@ -158,7 +158,7 @@ export const skillFields = (categoryOptions: SelectOption[]): FieldConfig<Skill>
 export const PROJECT_FIELDS: FieldConfig<Project>[] = [
   { key: "title", label: "Title", type: "text" },
   arabic("titleAr", "Title", "text"),
-  { key: "slug", label: "Slug (unique, e.g. quickpharma-plus)", type: "text" },
+  { key: "slug", label: "Slug (unique, e.g. sample-shop)", type: "text" },
   { key: "summary", label: "Summary (one line)", type: "text" },
   arabic("summaryAr", "Summary (one line)", "text"),
   { key: "description", label: "Description", type: "textarea" },
@@ -169,7 +169,7 @@ export const PROJECT_FIELDS: FieldConfig<Project>[] = [
     type: "textarea",
   },
   arabic("challengeAr", "The challenge", "textarea"),
-  { key: "context", label: "Context (e.g. Senior Project · Bahrain Polytechnic)", type: "text" },
+  { key: "context", label: "Context (e.g. Senior Project · University)", type: "text" },
   arabic("contextAr", "Context", "text"),
   { key: "myRole", label: "My role", type: "textarea" },
   arabic("myRoleAr", "My role", "textarea"),

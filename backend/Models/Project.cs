@@ -10,7 +10,7 @@ public class Project : IOrderedEntity
     [Required] public string Slug { get; set; } = "";
     public string Summary { get; set; } = "";
     public string Description { get; set; } = "";
-    public string? Context { get; set; }   // e.g. "Senior Project · Bahrain Polytechnic"
+    public string? Context { get; set; }   // e.g. "Senior Project · University"
     public string? MyRole { get; set; }    // what I personally did
     public List<string> Highlights { get; set; } = new();
     public List<string> Tech { get; set; } = new();

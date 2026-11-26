@@ -23,7 +23,7 @@ function safeName(fileName: string) {
 }
 
 /**
- * Uploads one file into `folder` (e.g. "certificates", "projects/rentops") and returns its
+ * Uploads one file into `folder` (e.g. "certificates", "projects/sample-shop") and returns its
  * public URL. The name gets a random suffix, so a new upload never reuses an old URL that
  * browsers or Vercel may still have cached.
  */

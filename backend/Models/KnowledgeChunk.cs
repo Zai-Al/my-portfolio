@@ -22,7 +22,7 @@ public class KnowledgeChunk
     public int ChunkIndex { get; set; }
     [Required] public string Title { get; set; } = "";
     [Required] public string Content { get; set; } = "";
-    /// <summary>Where the widget links to, e.g. "#projects" or "/projects/quickpharma-plus".</summary>
+    /// <summary>Where the widget links to, e.g. "#projects" or "/projects/sample-shop".</summary>
     public string? Anchor { get; set; }
     public Vector? Embedding { get; set; }
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

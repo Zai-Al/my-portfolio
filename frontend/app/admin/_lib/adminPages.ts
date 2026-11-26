@@ -60,11 +60,11 @@ export const ADMIN_PAGES: { id: AdminPageId; label: string; hint: string; Icon: 
     hint: "The chatbot's guide answers and its AI knowledge.",
     Icon: FaRobot,
   },
-  { id: "inbox", label: "Inbox", hint: "Messages sent through the contact form.", Icon: FaInbox },
   {
     id: "system-log",
     label: "System log",
     hint: "Problems the API logged (Gemini, Turnstile, crashes), one row per problem with how often it happened.",
     Icon: FaClipboardList,
   },
+  { id: "inbox", label: "Inbox", hint: "Messages sent through the contact form.", Icon: FaInbox },
 ];

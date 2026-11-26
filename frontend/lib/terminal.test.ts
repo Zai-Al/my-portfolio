@@ -19,9 +19,9 @@ import {
 } from "@/lib/terminal";
 
 const projects = [
-  { slug: "rentops", title: "RentOps" },
-  { slug: "quickpharma-plus", title: "QuickPharma+" },
-  { slug: "failed-orders-ticketing", title: "Failed Orders Ticketing System" },
+  { slug: "sample-shop", title: "Sample Shop" },
+  { slug: "pharmacy-app-plus", title: "Pharmacy App+" },
+  { slug: "support-ticketing", title: "Support Ticketing System" },
 ];
 const commands = [...COMMANDS, ...projects.map((p) => `open ${p.slug}`)];
 
@@ -114,7 +114,7 @@ describe("suggestCommand (did you mean)", () => {
   });
 
   it("leaves questions for the AI guide", () => {
-    expect(suggestCommand("what is rentops", commands)).toBeNull();
+    expect(suggestCommand("what is sample shop", commands)).toBeNull();
     expect(suggestCommand("open to relocation?", commands)).toBeNull();
     expect(suggestCommand("tell me about your experience", commands)).toBeNull();
   });
@@ -122,12 +122,12 @@ describe("suggestCommand (did you mean)", () => {
 
 describe("findProject (open <name>)", () => {
   it("matches the exact slug first", () => {
-    expect(findProject("rentops", projects)?.title).toBe("RentOps");
+    expect(findProject("sample-shop", projects)?.title).toBe("Sample Shop");
   });
 
   it("matches part of a slug or title when only one project fits", () => {
-    expect(findProject("pharma", projects)?.slug).toBe("quickpharma-plus");
-    expect(findProject("ticketing", projects)?.slug).toBe("failed-orders-ticketing");
+    expect(findProject("pharmacy", projects)?.slug).toBe("pharmacy-app-plus");
+    expect(findProject("ticketing", projects)?.slug).toBe("support-ticketing");
   });
 
   it("gives nothing when no project or several fit", () => {

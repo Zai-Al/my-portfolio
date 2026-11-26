@@ -23,7 +23,7 @@ export const SITE_URL = (
     : "http://localhost:3000")
 ).replace(/\/+$/, "");
 
-/** "Senior Project · Bahrain Polytechnic · 2025" (the year only when the context lacks it). */
+/** "Team project · Some University · 2025" (the year only when the context lacks it). */
 export function projectSubtitle(project: Project): string | undefined {
   const year = project.year && !project.context?.includes(project.year) ? project.year : null;
   return [project.context, year].filter(Boolean).join(" · ") || undefined;

@@ -182,8 +182,8 @@ describe("personJsonLd (structured data)", () => {
 
 describe("project page helpers", () => {
   it("builds the page address in each language", () => {
-    expect(projectPath("en", "rentops")).toBe("/projects/rentops");
-    expect(projectPath("ar", "rentops")).toBe("/ar/projects/rentops");
+    expect(projectPath("en", "sample-shop")).toBe("/projects/sample-shop");
+    expect(projectPath("ar", "sample-shop")).toBe("/ar/projects/sample-shop");
   });
 
   it("adds the year to the subtitle only when the context doesn't already say it", () => {

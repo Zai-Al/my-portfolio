@@ -157,6 +157,12 @@ builder.Services.AddScoped<KnowledgeIndexer>();
 builder.Services.AddScoped<KnowledgeRetriever>();
 builder.Services.AddHostedService<KnowledgeIndexWorker>();
 
+// --- Data Protection: ASP.NET makes keys for cookies and form tokens at startup and warns that
+// a container loses them on restart. This API has neither (admin sign-in is a Supabase bearer
+// token), so those warnings say nothing useful: only its real errors are logged (and reach the
+// System log). ---
+builder.Logging.AddFilter("Microsoft.AspNetCore.DataProtection", LogLevel.Error);
+
 // --- System log: every Warning or worse, from anywhere in the API, saved in the background
 // as one row per distinct problem and shown in the admin (Services/SystemLog). ---
 var systemLogQueue = new SystemLogQueue();
